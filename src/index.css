@@ -1,6 +1,9 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -13,11 +16,23 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 252 54% 57%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217 100% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --success: 142 72% 29%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 100%;
+
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
@@ -30,25 +45,13 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 252 54% 57%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-bg: 248 65% 11%;
+    --sidebar-hover: 248 65% 15%;
+    --sidebar-active: 248 65% 20%;
   }
 
   .dark {
@@ -61,11 +64,23 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 252 54% 57%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 217 100% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --success: 142 72% 29%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 100%;
+    
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
@@ -78,15 +93,11 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --ring: 252 54% 57%;
+
+    --sidebar-bg: 248 65% 11%;
+    --sidebar-hover: 248 65% 15%;
+    --sidebar-active: 248 65% 20%;
   }
 }
 
@@ -94,8 +105,108 @@
   * {
     @apply border-border;
   }
+  
+  html {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
+}
+
+/* Custom Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.98); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-10px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.4s ease-out forwards;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+/* Staggered animations for lists */
+.stagger-animation > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-animation > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-animation > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-animation > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-animation > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-animation > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-animation > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger-animation > *:nth-child(8) { animation-delay: 0.4s; }
+.stagger-animation > *:nth-child(9) { animation-delay: 0.45s; }
+.stagger-animation > *:nth-child(10) { animation-delay: 0.5s; }
+
+/* Glass morphism */
+.glass {
+  @apply bg-white/70 dark:bg-black/30 backdrop-blur-lg border border-white/20 dark:border-white/10;
+}
+
+.card-shadow {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Transitions */
+.page-transition {
+  @apply transition-all duration-300;
+}
+
+.sidebar-link {
+  @apply flex items-center gap-3 px-4 py-3 text-white/80 rounded-md transition-all duration-200 hover:bg-sidebar-hover;
+}
+
+.sidebar-link.active {
+  @apply bg-sidebar-active text-white;
+}
+
+/* Circle progress */
+.circle-progress {
+  --percentage: 90;
+  --size: 140px;
+  --thickness: 10px;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: conic-gradient(
+    hsl(var(--primary)) calc(var(--percentage) * 1%),
+    hsl(var(--muted)) 0
+  );
+  position: relative;
+}
+
+.circle-progress::before {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  inset: var(--thickness);
+  background: white;
+}
+
+.circle-progress-content {
+  position: relative;
+  z-index: 1;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: hsl(var(--primary));
 }
