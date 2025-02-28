@@ -12,6 +12,10 @@ import Suppliers from './pages/Suppliers';
 import Users from './pages/Users';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
+import Invoices from './pages/documents/Invoices';
+import DeliveryReceipts from './pages/documents/DeliveryReceipts';
+import WarrantyCertificates from './pages/documents/WarrantyCertificates';
+import Quotes from './pages/documents/Quotes';
 import './App.css';
 
 function App() {
@@ -29,6 +33,13 @@ function App() {
           <Route path="suppliers" element={<Suppliers />} />
           <Route path="users" element={<Users />} />
           <Route path="settings" element={<Settings />} />
+          
+          {/* Document Routes */}
+          <Route path="documents/invoices" element={<Invoices />} />
+          <Route path="documents/delivery-receipts" element={<DeliveryReceipts />} />
+          <Route path="documents/warranty-certificates" element={<WarrantyCertificates />} />
+          <Route path="documents/quotes" element={<Quotes />} />
+          
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

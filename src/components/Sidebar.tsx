@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -11,7 +12,14 @@ import {
   Users, 
   User, 
   Settings, 
-  LogOut 
+  LogOut,
+  FileText,
+  ChevronDown,
+  ChevronRight,
+  Receipt,
+  FileCheck,
+  Shield,
+  MessageSquare
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -21,6 +29,7 @@ interface SidebarProps {
 
 export default function Sidebar({ open, setOpen }: SidebarProps) {
   const location = useLocation();
+  const [documentsOpen, setDocumentsOpen] = useState(false);
   
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -34,6 +43,15 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
     { name: 'Users', path: '/users', icon: User },
     { name: 'Settings', path: '/settings', icon: Settings },
   ];
+
+  const documentItems = [
+    { name: 'Factures', path: '/documents/invoices', icon: Receipt },
+    { name: 'Bon de livraison', path: '/documents/delivery-receipts', icon: Truck },
+    { name: 'Attestation de garantie', path: '/documents/warranty-certificates', icon: Shield },
+    { name: 'Devis', path: '/documents/quotes', icon: MessageSquare },
+  ];
+
+  const isDocumentPage = location.pathname.includes('/documents');
 
   return (
     <aside 
@@ -66,6 +84,38 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
               </span>
             </Link>
           ))}
+          
+          {/* Documents Section */}
+          <div>
+            <button
+              onClick={() => setDocumentsOpen(!documentsOpen)}
+              className={`sidebar-link w-full ${isDocumentPage ? 'active' : ''} ${!open && 'justify-center md:px-2'}`}
+            >
+              <FileText size={20} />
+              {open && (
+                <>
+                  <span className="flex-1 opacity-100 transition-opacity duration-200">Documents</span>
+                  {documentsOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                </>
+              )}
+            </button>
+            
+            {/* Document Submenu */}
+            {open && documentsOpen && (
+              <div className="pl-8 mt-1 space-y-1">
+                {documentItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    className={`sidebar-link text-sm py-2 ${location.pathname === item.path ? 'active' : ''}`}
+                  >
+                    <item.icon size={16} />
+                    <span className="opacity-100 transition-opacity duration-200">{item.name}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </nav>
       
