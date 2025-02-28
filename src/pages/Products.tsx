@@ -61,17 +61,38 @@ const categories = ['Chairs', 'Tables', 'Sofas', 'Beds', 'Cabinets', 'Accessorie
 export default function Products() {
   const [allProducts, setAllProducts] = useState(products);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [isEditProductOpen, setIsEditProductOpen] = useState(false);
+  const [isViewProductOpen, setIsViewProductOpen] = useState(false);
   const [newProduct, setNewProduct] = useState({
     name: '',
     category: categories[0],
     price: '',
     stock: '',
   });
+  const [currentProduct, setCurrentProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   // Handler for the Add Product button
   const openAddProductModal = () => {
     setIsAddProductOpen(true);
+  };
+
+  // Handler for the Edit Product button
+  const openEditProductModal = (product) => {
+    setCurrentProduct(product);
+    setNewProduct({
+      name: product.name,
+      category: product.category,
+      price: product.price.toString(),
+      stock: product.stock.toString(),
+    });
+    setIsEditProductOpen(true);
+  };
+
+  // Handler for the View Product button
+  const openViewProductModal = (product) => {
+    setCurrentProduct(product);
+    setIsViewProductOpen(true);
   };
 
   // Handler for form field changes
@@ -125,6 +146,45 @@ export default function Products() {
     
     // Show success message
     toast.success(`Product "${newProductItem.name}" added successfully`);
+  };
+
+  // Handler for updating a product
+  const handleUpdateProduct = () => {
+    // Validate form
+    if (!newProduct.name || !newProduct.price || !newProduct.stock) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // Create updated product object
+    const price = parseInt(newProduct.price, 10);
+    const stock = parseInt(newProduct.stock, 10);
+    
+    // Validate numbers
+    if (isNaN(price) || isNaN(stock)) {
+      toast.error("Price and stock must be valid numbers");
+      return;
+    }
+
+    // Update product in state
+    const updatedProducts = allProducts.map(product => {
+      if (product.id === currentProduct.id) {
+        return {
+          ...product,
+          name: newProduct.name,
+          category: newProduct.category,
+          price: price,
+          stock: stock
+        };
+      }
+      return product;
+    });
+
+    setAllProducts(updatedProducts);
+    setIsEditProductOpen(false);
+    
+    // Show success message
+    toast.success(`Product "${newProduct.name}" updated successfully`);
   };
 
   // Filter products based on search term
@@ -202,10 +262,16 @@ export default function Products() {
                   <td className="py-4 text-sm">{product.orders}</td>
                   <td className="py-4 text-sm">
                     <div className="flex gap-2">
-                      <button className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-full transition-colors">
+                      <button 
+                        className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+                        onClick={() => openEditProductModal(product)}
+                      >
                         Edit
                       </button>
-                      <button className="px-3 py-1 text-xs text-white bg-primary hover:bg-primary/90 rounded-full transition-colors">
+                      <button 
+                        className="px-3 py-1 text-xs text-white bg-primary hover:bg-primary/90 rounded-full transition-colors"
+                        onClick={() => openViewProductModal(product)}
+                      >
                         View
                       </button>
                     </div>
@@ -300,6 +366,156 @@ export default function Products() {
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button onClick={handleAddProduct}>Add Product</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Product Modal */}
+      <Dialog open={isEditProductOpen} onOpenChange={setIsEditProductOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Product</DialogTitle>
+            <DialogDescription>
+              Update the product details below.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="edit-name" className="text-right font-medium">Name</label>
+              <input
+                id="edit-name"
+                name="name"
+                className="col-span-3 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                value={newProduct.name}
+                onChange={handleInputChange}
+                placeholder="Product name"
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="edit-category" className="text-right font-medium">Category</label>
+              <select
+                id="edit-category"
+                name="category"
+                className="col-span-3 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                value={newProduct.category}
+                onChange={handleInputChange}
+              >
+                {categories.map((category) => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="edit-price" className="text-right font-medium">Price (DH)</label>
+              <input
+                id="edit-price"
+                name="price"
+                type="number"
+                className="col-span-3 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                value={newProduct.price}
+                onChange={handleInputChange}
+                placeholder="0"
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="edit-stock" className="text-right font-medium">Stock</label>
+              <input
+                id="edit-stock"
+                name="stock"
+                type="number"
+                className="col-span-3 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                value={newProduct.stock}
+                onChange={handleInputChange}
+                placeholder="0"
+                required
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button onClick={handleUpdateProduct}>Update Product</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Product Modal */}
+      <Dialog open={isViewProductOpen} onOpenChange={setIsViewProductOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Product Details</DialogTitle>
+            <DialogDescription>
+              Detailed information about the selected product.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {currentProduct && (
+            <div className="py-4">
+              <div className="flex justify-center mb-6">
+                <div className="w-24 h-24 rounded-md bg-gray-100 overflow-hidden flex items-center justify-center">
+                  <img 
+                    src={currentProduct.image} 
+                    alt={currentProduct.name}
+                    className="w-20 h-20 object-contain"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-sm font-medium text-gray-500">Product Name:</div>
+                  <div className="col-span-2 font-medium">{currentProduct.name}</div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-sm font-medium text-gray-500">Category:</div>
+                  <div className="col-span-2">{currentProduct.category}</div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-sm font-medium text-gray-500">Price:</div>
+                  <div className="col-span-2 font-medium">{formatCurrency(currentProduct.price)}</div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-sm font-medium text-gray-500">Stock:</div>
+                  <div className="col-span-2">{currentProduct.stock} units</div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-sm font-medium text-gray-500">Orders:</div>
+                  <div className="col-span-2">{currentProduct.orders} orders</div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-sm font-medium text-gray-500">Product ID:</div>
+                  <div className="col-span-2">{currentProduct.id}</div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button>Close</Button>
+            </DialogClose>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setIsViewProductOpen(false);
+                openEditProductModal(currentProduct);
+              }}
+            >
+              Edit Product
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
