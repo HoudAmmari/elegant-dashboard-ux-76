@@ -1,5 +1,5 @@
 
-import { ArrowDownRight, ArrowUpRight, Package, ShoppingCart, TruckDelivery } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Package, ShoppingCart, Truck } from 'lucide-react';
 
 interface CardProps {
   title: string;
@@ -65,7 +65,7 @@ export default function DashboardCards() {
     {
       title: 'Delivered',
       value: '367',
-      icon: <TruckDelivery size={18} className="text-white" />,
+      icon: <Truck size={18} className="text-white" />,
       change: { value: 7.8, positive: false },
       color: 'bg-primary',
     },
