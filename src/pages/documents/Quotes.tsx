@@ -1,6 +1,7 @@
 
 import { MessageSquare } from 'lucide-react';
 import DocumentLayout from '../../components/documents/DocumentLayout';
+import { formatCurrency } from '../../utils/currency';
 
 export default function Quotes() {
   return (
@@ -83,7 +84,7 @@ export default function Quotes() {
                       <td className="py-3">
                         <input type="number" className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="0.00" />
                       </td>
-                      <td className="py-3 font-medium">₹0.00</td>
+                      <td className="py-3 font-medium">0.00 DH</td>
                     </tr>
                     <tr>
                       <td colSpan={5} className="py-3">
@@ -103,19 +104,19 @@ export default function Quotes() {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">₹0.00</span>
+                  <span className="font-medium">0.00 DH</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax (18%)</span>
-                  <span className="font-medium">₹0.00</span>
+                  <span className="font-medium">0.00 DH</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Discount</span>
-                  <span className="font-medium">₹0.00</span>
+                  <span className="font-medium">0.00 DH</span>
                 </div>
                 <div className="border-t pt-3 flex justify-between">
                   <span className="font-semibold">Total</span>
-                  <span className="font-semibold text-lg">₹0.00</span>
+                  <span className="font-semibold text-lg">0.00 DH</span>
                 </div>
               </div>
               

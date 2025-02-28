@@ -1,5 +1,6 @@
 
 import { ArrowDownRight, ArrowUpRight, Package, ShoppingCart, Truck } from 'lucide-react';
+import { formatCurrency } from '../../utils/currency';
 
 interface CardProps {
   title: string;
@@ -13,6 +14,11 @@ interface CardProps {
 }
 
 const Card = ({ title, value, icon, change, color }: CardProps) => {
+  // Format the value if it's a currency-related card
+  const displayValue = title.includes('Value') || title.includes('Orders') 
+    ? (typeof value === 'number' ? formatCurrency(value) : value)
+    : value;
+    
   return (
     <div className="flex flex-col p-5 bg-white rounded-lg card-shadow animate-scaleIn">
       <div className="flex justify-between items-start mb-3">
@@ -22,7 +28,7 @@ const Card = ({ title, value, icon, change, color }: CardProps) => {
         </div>
       </div>
       <div className="mb-1">
-        <span className="text-2xl font-bold">{value}</span>
+        <span className="text-2xl font-bold">{displayValue}</span>
       </div>
       <div className="flex items-center">
         <div className={`flex items-center ${change.positive ? 'text-green-500' : 'text-red-500'}`}>
@@ -43,7 +49,7 @@ export default function DashboardCards() {
   const cards = [
     {
       title: 'Inventory Value',
-      value: '₹2,54,890',
+      value: 254890,
       icon: <Package size={18} className="text-white" />,
       change: { value: 14.6, positive: true },
       color: 'bg-primary',

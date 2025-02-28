@@ -54,12 +54,12 @@ export default function SalesChart() {
             <YAxis 
               axisLine={false} 
               tickLine={false} 
-              tickFormatter={(value) => `₹${value}`} 
+              tickFormatter={(value) => `${value} DH`} 
               domain={[0, 25000]}
               ticks={[0, 5000, 10000, 15000, 20000, 25000]}
             />
             <Tooltip 
-              formatter={(value) => [`₹${value}`, undefined]}
+              formatter={(value) => [`${value} DH`, undefined]}
               contentStyle={{ borderRadius: '0.5rem', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)', border: 'none' }}
             />
             <Bar dataKey="sales" fill="hsl(252, 54%, 57%)" radius={[4, 4, 0, 0]} />

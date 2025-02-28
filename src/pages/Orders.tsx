@@ -1,5 +1,6 @@
 
 import { CalendarDays, Filter, Search } from 'lucide-react';
+import { formatCurrency } from '../utils/currency';
 
 // Sample orders
 const orders = [
@@ -8,7 +9,7 @@ const orders = [
     date: '15 Mar 2023',
     customer: 'Rajesh Kumar',
     items: 2,
-    total: '₹25,598',
+    total: 25598,
     payment: 'Paid',
     status: 'Delivered',
   },
@@ -17,7 +18,7 @@ const orders = [
     date: '14 Mar 2023',
     customer: 'Sasidaran T',
     items: 3,
-    total: '₹11,799',
+    total: 11799,
     payment: 'Pending',
     status: 'Processing',
   },
@@ -26,7 +27,7 @@ const orders = [
     date: '13 Mar 2023',
     customer: 'Sasidaran T',
     items: 3,
-    total: '₹11,799',
+    total: 11799,
     payment: 'Pending',
     status: 'Shipped',
   },
@@ -35,7 +36,7 @@ const orders = [
     date: '12 Mar 2023',
     customer: 'Amit Patel',
     items: 1,
-    total: '₹8,599',
+    total: 8599,
     payment: 'Paid',
     status: 'Delivered',
   },
@@ -44,7 +45,7 @@ const orders = [
     date: '11 Mar 2023',
     customer: 'Priya Singh',
     items: 4,
-    total: '₹32,450',
+    total: 32450,
     payment: 'Paid',
     status: 'Delivered',
   },
@@ -126,7 +127,7 @@ export default function Orders() {
                   <td className="py-4 text-sm">{order.date}</td>
                   <td className="py-4 text-sm">{order.customer}</td>
                   <td className="py-4 text-sm">{order.items}</td>
-                  <td className="py-4 text-sm font-medium">{order.total}</td>
+                  <td className="py-4 text-sm font-medium">{formatCurrency(order.total)}</td>
                   <td className="py-4 text-sm">
                     <span className={getPaymentColor(order.payment)}>
                       {order.payment}

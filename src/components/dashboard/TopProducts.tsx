@@ -1,11 +1,12 @@
 
 import { useState } from 'react';
+import { formatCurrency } from '../../utils/currency';
 
 const products = [
   {
     id: 1,
     name: 'Grace Accent Chair',
-    price: '₹12,799',
+    price: 12799,
     orders: 34,
     stock: 50,
     image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
@@ -13,7 +14,7 @@ const products = [
   {
     id: 2,
     name: 'Carven Lounge Chair',
-    price: '₹11,799',
+    price: 11799,
     orders: 28,
     stock: 417,
     image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
@@ -21,7 +22,7 @@ const products = [
   {
     id: 3,
     name: 'Paine Chair',
-    price: '₹4,799',
+    price: 4799,
     orders: 20,
     stock: 357,
     image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
@@ -29,9 +30,17 @@ const products = [
   {
     id: 4,
     name: 'Caria Patio Table',
-    price: '₹5,399',
+    price: 5399,
     orders: 18,
     stock: 490,
+    image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
+  },
+  {
+    id: 5,
+    name: 'Wooden Dining Table',
+    price: 8599,
+    orders: 15,
+    stock: 125,
     image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
   },
 ];
@@ -73,7 +82,7 @@ export default function TopProducts() {
           </thead>
           <tbody className="stagger-animation">
             {products.map((product) => (
-              <tr key={product.id} className="border-b last:border-b-0 animate-slideIn opacity-0">
+              <tr key={product.id} className="border-b last:border-b-0 hover:bg-gray-50 animate-slideIn opacity-0">
                 <td className="py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-md bg-gray-100 overflow-hidden flex items-center justify-center">
@@ -86,7 +95,7 @@ export default function TopProducts() {
                     <span className="font-medium">{product.name}</span>
                   </div>
                 </td>
-                <td className="py-4 text-sm">{product.price}</td>
+                <td className="py-4 text-sm">{formatCurrency(product.price)}</td>
                 <td className="py-4 text-sm">{product.orders}</td>
                 <td className="py-4 text-sm">{product.stock}</td>
               </tr>

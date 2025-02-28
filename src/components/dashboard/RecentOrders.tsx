@@ -1,5 +1,6 @@
 
 import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { formatCurrency } from '../../utils/currency';
 
 const orders = [
   {
@@ -7,7 +8,7 @@ const orders = [
     product: 'Grace Accent Chair',
     customer: 'Rajesh Kumar',
     quantity: 2,
-    amount: '₹25,598',
+    amount: 25598,
     payment: 'Paid',
     status: 'Delivered',
     image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
@@ -17,7 +18,7 @@ const orders = [
     product: 'Carven Lounge Chair',
     customer: 'Sasidaran T',
     quantity: 3,
-    amount: '₹11,799',
+    amount: 11799,
     payment: 'Pending',
     status: 'Processing',
     image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
@@ -27,7 +28,7 @@ const orders = [
     product: 'Lounge Chair',
     customer: 'Sasidaran T',
     quantity: 3,
-    amount: '₹11,799',
+    amount: 11799,
     payment: 'Pending',
     status: 'Shipped',
     image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
@@ -106,7 +107,7 @@ export default function RecentOrders() {
                 <td className="py-4 text-sm whitespace-nowrap">{order.id}</td>
                 <td className="py-4 text-sm whitespace-nowrap">{order.customer}</td>
                 <td className="py-4 text-sm whitespace-nowrap">{order.quantity}</td>
-                <td className="py-4 text-sm whitespace-nowrap">{order.amount}</td>
+                <td className="py-4 text-sm whitespace-nowrap">{formatCurrency(order.amount)}</td>
                 <td className="py-4 text-sm whitespace-nowrap">
                   <span className={getPaymentColor(order.payment)}>
                     {order.payment}

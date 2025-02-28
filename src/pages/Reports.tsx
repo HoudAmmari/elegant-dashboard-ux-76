@@ -1,6 +1,7 @@
 
 import { BarChart, Calendar, CalendarDays, Download, PieChart } from 'lucide-react';
 import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, Legend } from 'recharts';
+import { formatCurrency } from '../utils/currency';
 
 // Sample data for charts
 const salesData = [
@@ -77,10 +78,10 @@ export default function Reports() {
                 <YAxis 
                   axisLine={false} 
                   tickLine={false} 
-                  tickFormatter={(value) => `₹${value/1000}k`} 
+                  tickFormatter={(value) => `${value/1000}k DH`} 
                 />
                 <Tooltip 
-                  formatter={(value) => [`₹${value}`, 'Sales']}
+                  formatter={(value) => [`${value} DH`, 'Sales']}
                   contentStyle={{ borderRadius: '0.5rem', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)', border: 'none' }}
                 />
                 <Bar dataKey="sales" fill="hsl(252, 54%, 57%)" radius={[4, 4, 0, 0]} />
@@ -144,7 +145,7 @@ export default function Reports() {
             <h3 className="text-sm font-medium text-gray-500 mb-3">{title}</h3>
             <div className="mb-1">
               <span className="text-2xl font-bold">
-                {index === 3 ? '67.8%' : index === 2 ? '₹4,890' : `₹${(120000 + index * 50000).toLocaleString()}`}
+                {index === 3 ? '67.8%' : index === 2 ? formatCurrency(4890) : formatCurrency(120000 + index * 50000)}
               </span>
             </div>
             <div className="flex items-center text-green-500">

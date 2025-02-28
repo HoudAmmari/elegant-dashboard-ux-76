@@ -1,5 +1,6 @@
 
 import { Plus, Search } from 'lucide-react';
+import { formatCurrency } from '../utils/currency';
 
 // Sample products
 const products = [
@@ -8,7 +9,7 @@ const products = [
     image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
     name: 'Grace Accent Chair',
     category: 'Chairs',
-    price: '₹12,799',
+    price: 12799,
     stock: 50,
     orders: 34
   },
@@ -17,7 +18,7 @@ const products = [
     image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
     name: 'Carven Lounge Chair',
     category: 'Chairs',
-    price: '₹11,799',
+    price: 11799,
     stock: 417,
     orders: 28
   },
@@ -26,7 +27,7 @@ const products = [
     image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
     name: 'Paine Chair',
     category: 'Chairs',
-    price: '₹4,799',
+    price: 4799,
     stock: 357,
     orders: 20
   },
@@ -35,7 +36,7 @@ const products = [
     image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
     name: 'Caria Patio Table',
     category: 'Tables',
-    price: '₹5,399',
+    price: 5399,
     stock: 490,
     orders: 18
   },
@@ -44,7 +45,7 @@ const products = [
     image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
     name: 'Wooden Dining Table',
     category: 'Tables',
-    price: '₹8,599',
+    price: 8599,
     stock: 125,
     orders: 15
   }
@@ -110,7 +111,7 @@ export default function Products() {
                     </div>
                   </td>
                   <td className="py-4 text-sm">{product.category}</td>
-                  <td className="py-4 text-sm font-medium">{product.price}</td>
+                  <td className="py-4 text-sm font-medium">{formatCurrency(product.price)}</td>
                   <td className="py-4 text-sm">{product.stock}</td>
                   <td className="py-4 text-sm">{product.orders}</td>
                   <td className="py-4 text-sm">
