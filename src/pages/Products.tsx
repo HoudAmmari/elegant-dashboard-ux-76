@@ -1,10 +1,18 @@
 
-import { Plus, Search, Edit, Eye, X } from 'lucide-react';
+import { Plus, Search, Edit, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatCurrency } from '../utils/currency';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '../components/ui/dialog';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from '../components/ui/pagination';
 
 // Sample products
 const products = [
@@ -71,6 +79,10 @@ export default function Products() {
   });
   const [currentProduct, setCurrentProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // Handler for the Add Product button
   const openAddProductModal = () => {
@@ -193,6 +205,27 @@ export default function Products() {
     product.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Get current page items
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
+  // Change page
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  // Generate page numbers for pagination
+  const pageNumbers = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
+
   return (
     <div className="space-y-5 animate-fadeIn">
       <div className="flex justify-between items-center flex-wrap gap-4">
@@ -239,7 +272,7 @@ export default function Products() {
               </tr>
             </thead>
             <tbody className="stagger-animation">
-              {filteredProducts.map((product) => (
+              {currentItems.map((product) => (
                 <tr key={product.id} className="border-b last:border-b-0 hover:bg-gray-50 animate-slideIn opacity-0">
                   <td className="py-4">
                     <input type="checkbox" className="rounded text-primary focus:ring-primary"/>
@@ -283,13 +316,44 @@ export default function Products() {
         </div>
         
         <div className="flex justify-between items-center mt-6 text-sm">
-          <div className="text-gray-500">Showing {filteredProducts.length} of {allProducts.length} products</div>
-          <div className="flex gap-1">
-            <button className="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-md">1</button>
-            <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-md">2</button>
-            <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-md">3</button>
-            <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-md">→</button>
+          <div className="text-gray-500">
+            Showing {currentItems.length} of {filteredProducts.length} products
+            {filteredProducts.length > 0 && (
+              <span>, Page {currentPage} of {totalPages}</span>
+            )}
           </div>
+          
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => paginate(currentPage - 1)}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  aria-disabled={currentPage === 1}
+                />
+              </PaginationItem>
+              
+              {pageNumbers.map(number => (
+                <PaginationItem key={number}>
+                  <PaginationLink 
+                    onClick={() => paginate(number)}
+                    isActive={currentPage === number}
+                    className="cursor-pointer"
+                  >
+                    {number}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => paginate(currentPage + 1)}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  aria-disabled={currentPage === totalPages}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </div>
 
