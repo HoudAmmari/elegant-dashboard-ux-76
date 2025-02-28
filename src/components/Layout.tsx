@@ -21,7 +21,7 @@ export default function Layout() {
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
       {/* Main Content */}
-      <div className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
+      <div className="flex flex-col flex-1 ml-0 md:ml-20 transition-all duration-300 ease-in-out" style={sidebarOpen ? { marginLeft: '16rem' } : {}}>
         {/* Header */}
         <header className="sticky top-0 z-10 flex items-center justify-between p-4 bg-white dark:bg-gray-800 card-shadow">
           <div className="flex items-center gap-3">
