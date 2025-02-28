@@ -1,6 +1,10 @@
 
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Edit, Eye, X } from 'lucide-react';
 import { formatCurrency } from '../utils/currency';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '../components/ui/dialog';
+import { Button } from '../components/ui/button';
+import { toast } from 'sonner';
 
 // Sample products
 const products = [
@@ -51,7 +55,84 @@ const products = [
   }
 ];
 
+// Product categories
+const categories = ['Chairs', 'Tables', 'Sofas', 'Beds', 'Cabinets', 'Accessories'];
+
 export default function Products() {
+  const [allProducts, setAllProducts] = useState(products);
+  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [newProduct, setNewProduct] = useState({
+    name: '',
+    category: categories[0],
+    price: '',
+    stock: '',
+  });
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Handler for the Add Product button
+  const openAddProductModal = () => {
+    setIsAddProductOpen(true);
+  };
+
+  // Handler for form field changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewProduct({
+      ...newProduct,
+      [name]: value,
+    });
+  };
+
+  // Handler for adding a new product
+  const handleAddProduct = () => {
+    // Validate form
+    if (!newProduct.name || !newProduct.price || !newProduct.stock) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // Create new product object
+    const price = parseInt(newProduct.price, 10);
+    const stock = parseInt(newProduct.stock, 10);
+    
+    // Validate numbers
+    if (isNaN(price) || isNaN(stock)) {
+      toast.error("Price and stock must be valid numbers");
+      return;
+    }
+
+    const newProductItem = {
+      id: allProducts.length + 1,
+      image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png', // Default image
+      name: newProduct.name,
+      category: newProduct.category,
+      price: price,
+      stock: stock,
+      orders: 0
+    };
+
+    // Add new product to state
+    setAllProducts([...allProducts, newProductItem]);
+    
+    // Reset form and close modal
+    setNewProduct({
+      name: '',
+      category: categories[0],
+      price: '',
+      stock: '',
+    });
+    setIsAddProductOpen(false);
+    
+    // Show success message
+    toast.success(`Product "${newProductItem.name}" added successfully`);
+  };
+
+  // Filter products based on search term
+  const filteredProducts = allProducts.filter(product => 
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="space-y-5 animate-fadeIn">
       <div className="flex justify-between items-center flex-wrap gap-4">
@@ -66,10 +147,15 @@ export default function Products() {
               type="search" 
               className="block w-full py-2 pl-10 pr-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary"
               placeholder="Search products..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           
-          <button className="flex items-center gap-2 px-4 py-2 text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors">
+          <button 
+            className="flex items-center gap-2 px-4 py-2 text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors"
+            onClick={openAddProductModal}
+          >
             <Plus size={18} />
             <span>Add Product</span>
           </button>
@@ -93,7 +179,7 @@ export default function Products() {
               </tr>
             </thead>
             <tbody className="stagger-animation">
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <tr key={product.id} className="border-b last:border-b-0 hover:bg-gray-50 animate-slideIn opacity-0">
                   <td className="py-4">
                     <input type="checkbox" className="rounded text-primary focus:ring-primary"/>
@@ -131,7 +217,7 @@ export default function Products() {
         </div>
         
         <div className="flex justify-between items-center mt-6 text-sm">
-          <div className="text-gray-500">Showing 5 of 25 products</div>
+          <div className="text-gray-500">Showing {filteredProducts.length} of {allProducts.length} products</div>
           <div className="flex gap-1">
             <button className="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-md">1</button>
             <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-md">2</button>
@@ -140,6 +226,83 @@ export default function Products() {
           </div>
         </div>
       </div>
+
+      {/* Add Product Modal */}
+      <Dialog open={isAddProductOpen} onOpenChange={setIsAddProductOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add New Product</DialogTitle>
+            <DialogDescription>
+              Enter the details for the new product below.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="name" className="text-right font-medium">Name</label>
+              <input
+                id="name"
+                name="name"
+                className="col-span-3 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                value={newProduct.name}
+                onChange={handleInputChange}
+                placeholder="Product name"
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="category" className="text-right font-medium">Category</label>
+              <select
+                id="category"
+                name="category"
+                className="col-span-3 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                value={newProduct.category}
+                onChange={handleInputChange}
+              >
+                {categories.map((category) => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="price" className="text-right font-medium">Price (DH)</label>
+              <input
+                id="price"
+                name="price"
+                type="number"
+                className="col-span-3 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                value={newProduct.price}
+                onChange={handleInputChange}
+                placeholder="0"
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="stock" className="text-right font-medium">Stock</label>
+              <input
+                id="stock"
+                name="stock"
+                type="number"
+                className="col-span-3 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                value={newProduct.stock}
+                onChange={handleInputChange}
+                placeholder="0"
+                required
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button onClick={handleAddProduct}>Add Product</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
