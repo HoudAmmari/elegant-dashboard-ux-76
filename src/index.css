@@ -169,12 +169,26 @@
   @apply transition-all duration-300;
 }
 
+/* Sidebar styles */
 .sidebar-link {
   @apply flex items-center gap-3 px-4 py-3 text-white/80 rounded-md transition-all duration-200 hover:bg-sidebar-hover;
 }
 
 .sidebar-link.active {
   @apply bg-sidebar-active text-white;
+}
+
+/* Sidebar submenu item styles */
+.sidebar-sublink {
+  @apply px-3 py-2 rounded-md gap-2.5 text-sm;
+}
+
+.sidebar-sublink:hover {
+  @apply bg-sidebar-hover/70;
+}
+
+.sidebar-sublink.active {
+  @apply bg-sidebar-active/80 text-white;
 }
 
 /* Circle progress */

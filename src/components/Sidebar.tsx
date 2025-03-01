@@ -122,24 +122,24 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
               <FileText size={20} />
               {open && (
                 <>
-                  <span className="flex-1 opacity-100 transition-opacity duration-200">Documents</span>
+                  <span className="flex-1 transition-opacity duration-200">Documents</span>
                   {documentsOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                 </>
               )}
             </button>
             
-            {/* Document Submenu */}
+            {/* Document Submenu - Improved alignment and spacing */}
             {open && documentsOpen && (
-              <div className="pl-8 mt-1 space-y-1">
+              <div className="ml-2 mt-1 space-y-0.5 border-l border-white/10 pl-3">
                 {documentItems.map((item) => (
                   <Link
                     key={item.name}
                     to={item.path}
-                    className={`sidebar-link text-sm py-2 ${location.pathname === item.path ? 'active' : ''}`}
+                    className={`sidebar-link sidebar-sublink text-sm py-2 ${location.pathname === item.path ? 'active' : 'text-white/70 hover:text-white'}`}
                     onClick={() => isMobile && setOpen(false)}
                   >
                     <item.icon size={16} />
-                    <span className="opacity-100 transition-opacity duration-200">{item.name}</span>
+                    <span className="transition-opacity duration-200">{item.name}</span>
                   </Link>
                 ))}
               </div>
