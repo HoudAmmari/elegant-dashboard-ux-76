@@ -1,8 +1,6 @@
 
 #root {
-  max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 }
 
@@ -42,8 +40,28 @@
   color: #888;
 }
 
-/* Add this to ensure proper scrolling behavior */
-html, body {
+/* Ensure proper scrolling behavior */
+html, body, #root {
   height: 100%;
   overflow-y: auto;
+  margin: 0;
+  padding: 0;
+}
+
+/* Improve responsive layouts */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
+/* Hide scrollbar while keeping functionality */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }

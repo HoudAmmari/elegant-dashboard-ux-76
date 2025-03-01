@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -19,8 +19,10 @@ import {
   Receipt,
   FileCheck,
   Shield,
-  MessageSquare
+  MessageSquare,
+  X
 } from 'lucide-react';
+import { useMobile } from '@/hooks/use-mobile';
 
 interface SidebarProps {
   open: boolean;
@@ -30,6 +32,14 @@ interface SidebarProps {
 export default function Sidebar({ open, setOpen }: SidebarProps) {
   const location = useLocation();
   const [documentsOpen, setDocumentsOpen] = useState(false);
+  const isMobile = useMobile();
+  
+  // Auto open documents section if current path is in documents
+  useEffect(() => {
+    if (location.pathname.includes('/documents')) {
+      setDocumentsOpen(true);
+    }
+  }, [location.pathname]);
   
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -55,18 +65,32 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
 
   return (
     <aside 
-      className={`${
-        open ? 'translate-x-0 w-64' : '-translate-x-full w-0 md:w-20 md:translate-x-0'
-      } fixed inset-y-0 left-0 z-50 flex flex-col bg-sidebar-bg overflow-hidden transition-all duration-300 ease-in-out`}
+      className={`
+        fixed inset-y-0 left-0 z-50 flex flex-col bg-sidebar-bg 
+        transition-all duration-300 ease-in-out
+        ${open ? 'w-64' : 'w-0 md:w-20'} 
+        ${isMobile && !open ? '-translate-x-full' : 'translate-x-0'}
+      `}
     >
-      {/* Logo */}
-      <div className="flex items-center h-16 px-6 space-x-3">
+      {/* Logo and close button for mobile */}
+      <div className="flex items-center justify-between h-16 px-4 md:px-6 border-b border-white/10">
         <div className="font-bold text-2xl text-white flex gap-1 items-center">
           <span className="bg-primary h-8 w-8 flex items-center justify-center rounded-md">MF</span>
           <span className={`${open ? 'opacity-100' : 'opacity-0 md:hidden'} transition-opacity duration-200`}>
             Maestro Furniture
           </span>
         </div>
+        
+        {/* Close button only on mobile */}
+        {isMobile && open && (
+          <button 
+            onClick={() => setOpen(false)}
+            className="text-white/80 hover:text-white p-1.5 rounded-md hover:bg-white/10"
+            aria-label="Close sidebar"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
       
       {/* Navigation */}
@@ -77,6 +101,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
               key={item.name}
               to={item.path}
               className={`sidebar-link ${location.pathname === item.path ? 'active' : ''} ${!open && 'justify-center md:px-2'}`}
+              onClick={() => isMobile && setOpen(false)}
             >
               <item.icon size={20} />
               <span className={`${open ? 'opacity-100' : 'opacity-0 md:hidden'} transition-opacity duration-200`}>
@@ -108,6 +133,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
                     key={item.name}
                     to={item.path}
                     className={`sidebar-link text-sm py-2 ${location.pathname === item.path ? 'active' : ''}`}
+                    onClick={() => isMobile && setOpen(false)}
                   >
                     <item.icon size={16} />
                     <span className="opacity-100 transition-opacity duration-200">{item.name}</span>
