@@ -16,12 +16,12 @@ export default function Layout() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       {/* Sidebar */}
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
       {/* Main Content */}
-      <div className="flex flex-col flex-1 ml-0 md:ml-20 transition-all duration-300 ease-in-out" style={sidebarOpen ? { marginLeft: '16rem' } : {}}>
+      <div className="flex flex-col flex-1 ml-0 md:ml-20 transition-all duration-300 ease-in-out overflow-hidden" style={sidebarOpen ? { marginLeft: '16rem' } : {}}>
         {/* Header */}
         <header className="sticky top-0 z-10 flex items-center justify-between p-4 bg-white dark:bg-gray-800 card-shadow">
           <div className="flex items-center gap-3">
@@ -73,8 +73,8 @@ export default function Layout() {
           </div>
         </header>
         
-        {/* Page Content */}
-        <main className="flex-1 p-4 md:p-6">
+        {/* Page Content - Added overflow-y-auto to enable scrolling */}
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           <div className="animate-fadeIn">
             <Outlet />
           </div>

@@ -9,7 +9,7 @@ import ProductSummary from '@/components/dashboard/ProductSummary';
 
 export default function Index() {
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 pb-5">
       {/* Activity Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5">
         <h2 className="text-xl font-semibold mb-2 sm:mb-0">Activity</h2>

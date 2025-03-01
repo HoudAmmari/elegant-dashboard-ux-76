@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -39,4 +40,10 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Add this to ensure proper scrolling behavior */
+html, body {
+  height: 100%;
+  overflow-y: auto;
 }
