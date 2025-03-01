@@ -1,5 +1,7 @@
+
 import { useState } from 'react';
 import { Bell, FileText, Globe, Lock, Moon, Sun, User } from 'lucide-react';
+import { useSettings } from '../contexts/SettingsContext';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -64,7 +66,7 @@ export default function Settings() {
                         <input 
                           type="text" 
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary"
-                          value="Admin"
+                          defaultValue="Admin"
                         />
                       </div>
                       <div>
@@ -72,7 +74,7 @@ export default function Settings() {
                         <input 
                           type="text" 
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary"
-                          value="User"
+                          defaultValue="User"
                         />
                       </div>
                     </div>
@@ -82,7 +84,7 @@ export default function Settings() {
                       <input 
                         type="email" 
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary"
-                        value="admin@maestrofurniture.com"
+                        defaultValue="admin@maestrofurniture.com"
                       />
                     </div>
                     
@@ -186,77 +188,28 @@ export default function Settings() {
 
 function DocumentsSettings() {
   const [activeDocType, setActiveDocType] = useState('invoice');
-  const [settings, setSettings] = useState({
-    invoice: {
-      fields: {
-        invoiceNumber: true,
-        customerName: true,
-        customerAddress: true,
-        productDetails: true,
-        tax: true,
-        termsConditions: true
-      },
-      taxRate: 18
-    },
-    delivery: {
-      fields: {
-        deliveryNumber: true,
-        customerName: true,
-        customerAddress: true,
-        productDetails: true,
-        deliveryDate: true,
-        signature: true
-      }
-    },
-    warranty: {
-      fields: {
-        warrantyNumber: true,
-        customerName: true,
-        productDetails: true,
-        warrantyPeriod: true,
-        purchaseDate: true,
-        termsConditions: true
-      }
-    },
-    quote: {
-      fields: {
-        quoteNumber: true,
-        customerName: true,
-        customerAddress: true,
-        productDetails: true,
-        tax: true,
-        validityPeriod: true,
-        termsConditions: true
-      },
-      taxRate: 18
-    }
-  });
+  const { settings, updateDocumentSettings } = useSettings();
 
   const handleFieldChange = (docType, field, value) => {
-    setSettings(prev => ({
-      ...prev,
-      [docType]: {
-        ...prev[docType],
-        fields: {
-          ...prev[docType].fields,
-          [field]: value
-        }
+    updateDocumentSettings(docType, {
+      ...settings[docType],
+      fields: {
+        ...settings[docType].fields,
+        [field]: value
       }
-    }));
+    });
   };
 
   const handleTaxRateChange = (docType, value) => {
-    setSettings(prev => ({
-      ...prev,
-      [docType]: {
-        ...prev[docType],
-        taxRate: value
-      }
-    }));
+    updateDocumentSettings(docType, {
+      ...settings[docType],
+      taxRate: value
+    });
   };
 
   const handleSaveChanges = () => {
-    alert('Settings saved successfully!');
+    // Settings are already saved on each change, but we show a notification for UX
+    toast.success('All document settings saved successfully!');
   };
 
   return (
