@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { Bell, FileText, Globe, Lock, Moon, Sun, User } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
+import { toast } from 'sonner';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -208,7 +208,6 @@ function DocumentsSettings() {
   };
 
   const handleSaveChanges = () => {
-    // Settings are already saved on each change, but we show a notification for UX
     toast.success('All document settings saved successfully!');
   };
 
