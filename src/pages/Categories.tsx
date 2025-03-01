@@ -1,5 +1,5 @@
 
-import { Plus, Edit as EditIcon } from 'lucide-react';
+import { Plus, Edit as EditIcon, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
-// Sample categories
+// Sample categories with updated icons
 const initialCategories = [
   { id: 1, name: 'Chairs', products: 24, icon: '🪑' },
   { id: 2, name: 'Tables', products: 18, icon: '🛋️' },
@@ -50,7 +50,7 @@ export default function Categories() {
       id: categories.length > 0 ? Math.max(...categories.map(cat => cat.id)) + 1 : 1,
       name: newCategoryName,
       products: 0,
-      icon: newCategoryIcon
+      icon: newCategoryIcon || '⚪' // Default icon if none selected
     };
 
     setCategories([...categories, newCategory]);
@@ -75,7 +75,7 @@ export default function Categories() {
 
     const updatedCategories = categories.map(cat => 
       cat.id === currentCategory.id 
-        ? { ...cat, name: editCategoryName, icon: editCategoryIcon } 
+        ? { ...cat, name: editCategoryName, icon: editCategoryIcon || '⚪' } 
         : cat
     );
 
@@ -90,8 +90,26 @@ export default function Categories() {
     navigate(`/products?category=${categoryId}`);
   };
 
-  // Icons for selection
-  const iconOptions = ['🪑', '🛋️', '🛏️', '🗄️', '⛱️', '🚪', '💡', '🪞'];
+  // Updated icon options with new icons for different product types
+  const iconOptions = [
+    // Original icons
+    { value: '🪑', label: 'Chair' },
+    { value: '🛋️', label: 'Sofa' },
+    { value: '🛏️', label: 'Bed' },
+    { value: '🗄️', label: 'Cabinet' },
+    { value: '⛱️', label: 'Outdoor' },
+    { value: '🚪', label: 'Door' },
+    { value: '💡', label: 'Lamp' },
+    { value: '🪞', label: 'Mirror' },
+    // New icons for electronics and services
+    { value: '💻', label: 'Laptop' },
+    { value: '🖥️', label: 'Desktop' },
+    { value: '📺', label: 'TV' },
+    { value: '📱', label: 'Smartphone' },
+    { value: '🎧', label: 'Accessory' },
+    { value: '🛠️', label: 'Service' },
+    { value: '⚪', label: 'Default' }
+  ];
 
   return (
     <div className="space-y-5 animate-fadeIn">
@@ -161,17 +179,18 @@ export default function Categories() {
             
             <div className="space-y-2">
               <label className="text-sm font-medium">Category Icon</label>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-5 gap-2">
                 {iconOptions.map((icon) => (
                   <button
-                    key={icon}
+                    key={icon.value}
                     type="button"
-                    onClick={() => setNewCategoryIcon(icon)}
-                    className={`w-8 h-8 flex items-center justify-center rounded-md ${
-                      newCategoryIcon === icon ? 'bg-primary text-white' : 'bg-gray-100 hover:bg-gray-200'
+                    onClick={() => setNewCategoryIcon(icon.value)}
+                    className={`h-10 flex items-center justify-center rounded-md ${
+                      newCategoryIcon === icon.value ? 'bg-primary text-white' : 'bg-gray-100 hover:bg-gray-200'
                     }`}
+                    title={icon.label}
                   >
-                    {icon}
+                    <span className="text-lg">{icon.value}</span>
                   </button>
                 ))}
               </div>
@@ -213,17 +232,18 @@ export default function Categories() {
             
             <div className="space-y-2">
               <label className="text-sm font-medium">Category Icon</label>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-5 gap-2">
                 {iconOptions.map((icon) => (
                   <button
-                    key={icon}
+                    key={icon.value}
                     type="button"
-                    onClick={() => setEditCategoryIcon(icon)}
-                    className={`w-8 h-8 flex items-center justify-center rounded-md ${
-                      editCategoryIcon === icon ? 'bg-primary text-white' : 'bg-gray-100 hover:bg-gray-200'
+                    onClick={() => setEditCategoryIcon(icon.value)}
+                    className={`h-10 flex items-center justify-center rounded-md ${
+                      editCategoryIcon === icon.value ? 'bg-primary text-white' : 'bg-gray-100 hover:bg-gray-200'
                     }`}
+                    title={icon.label}
                   >
-                    {icon}
+                    <span className="text-lg">{icon.value}</span>
                   </button>
                 ))}
               </div>
