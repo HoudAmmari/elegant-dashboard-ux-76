@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { Bell, Globe, Lock, Moon, Sun, User } from 'lucide-react';
+import { Bell, FileText, Globe, Lock, Moon, Sun, User } from 'lucide-react';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -17,6 +16,7 @@ export default function Settings() {
               {[
                 { id: 'profile', name: 'Profile', icon: User },
                 { id: 'appearance', name: 'Appearance', icon: Moon },
+                { id: 'documents', name: 'Documents Settings', icon: FileText },
                 { id: 'notifications', name: 'Notifications', icon: Bell },
                 { id: 'security', name: 'Security', icon: Lock },
                 { id: 'language', name: 'Language', icon: Globe },
@@ -168,7 +168,11 @@ export default function Settings() {
               </div>
             )}
             
-            {activeTab !== 'profile' && activeTab !== 'appearance' && (
+            {activeTab === 'documents' && (
+              <DocumentsSettings />
+            )}
+            
+            {activeTab !== 'profile' && activeTab !== 'appearance' && activeTab !== 'documents' && (
               <div className="flex items-center justify-center h-64">
                 <p className="text-gray-500">This section is under development.</p>
               </div>
@@ -176,6 +180,337 @@ export default function Settings() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function DocumentsSettings() {
+  const [activeDocType, setActiveDocType] = useState('invoice');
+  const [settings, setSettings] = useState({
+    invoice: {
+      fields: {
+        invoiceNumber: true,
+        customerName: true,
+        customerAddress: true,
+        productDetails: true,
+        tax: true,
+        termsConditions: true
+      },
+      taxRate: 18
+    },
+    delivery: {
+      fields: {
+        deliveryNumber: true,
+        customerName: true,
+        customerAddress: true,
+        productDetails: true,
+        deliveryDate: true,
+        signature: true
+      }
+    },
+    warranty: {
+      fields: {
+        warrantyNumber: true,
+        customerName: true,
+        productDetails: true,
+        warrantyPeriod: true,
+        purchaseDate: true,
+        termsConditions: true
+      }
+    },
+    quote: {
+      fields: {
+        quoteNumber: true,
+        customerName: true,
+        customerAddress: true,
+        productDetails: true,
+        tax: true,
+        validityPeriod: true,
+        termsConditions: true
+      },
+      taxRate: 18
+    }
+  });
+
+  const handleFieldChange = (docType, field, value) => {
+    setSettings(prev => ({
+      ...prev,
+      [docType]: {
+        ...prev[docType],
+        fields: {
+          ...prev[docType].fields,
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  const handleTaxRateChange = (docType, value) => {
+    setSettings(prev => ({
+      ...prev,
+      [docType]: {
+        ...prev[docType],
+        taxRate: value
+      }
+    }));
+  };
+
+  const handleSaveChanges = () => {
+    alert('Settings saved successfully!');
+  };
+
+  return (
+    <div className="animate-fadeIn">
+      <h2 className="text-xl font-semibold mb-6">Documents Settings</h2>
+      
+      <div className="mb-6 border-b">
+        <div className="flex space-x-4">
+          {[
+            { id: 'invoice', name: 'Factures (Invoices)' },
+            { id: 'delivery', name: 'Bon de livraison' },
+            { id: 'warranty', name: 'Attestation de garantie' },
+            { id: 'quote', name: 'Devis (Quotes)' }
+          ].map((docType) => (
+            <button
+              key={docType.id}
+              onClick={() => setActiveDocType(docType.id)}
+              className={`px-4 py-2 font-medium transition-colors border-b-2 ${
+                activeDocType === docType.id
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {docType.name}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {activeDocType === 'invoice' && (
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-medium mb-4">Invoice Field Display Options</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SettingsCheckbox 
+                label="Invoice Number" 
+                checked={settings.invoice.fields.invoiceNumber}
+                onChange={(checked) => handleFieldChange('invoice', 'invoiceNumber', checked)}
+              />
+              <SettingsCheckbox 
+                label="Customer Name" 
+                checked={settings.invoice.fields.customerName}
+                onChange={(checked) => handleFieldChange('invoice', 'customerName', checked)}
+              />
+              <SettingsCheckbox 
+                label="Customer Address" 
+                checked={settings.invoice.fields.customerAddress}
+                onChange={(checked) => handleFieldChange('invoice', 'customerAddress', checked)}
+              />
+              <SettingsCheckbox 
+                label="Product Details" 
+                checked={settings.invoice.fields.productDetails}
+                onChange={(checked) => handleFieldChange('invoice', 'productDetails', checked)}
+              />
+              <SettingsCheckbox 
+                label="Tax" 
+                checked={settings.invoice.fields.tax}
+                onChange={(checked) => handleFieldChange('invoice', 'tax', checked)}
+              />
+              <SettingsCheckbox 
+                label="Terms & Conditions" 
+                checked={settings.invoice.fields.termsConditions}
+                onChange={(checked) => handleFieldChange('invoice', 'termsConditions', checked)}
+              />
+            </div>
+          </div>
+          
+          <div className="border-t pt-4">
+            <h3 className="text-lg font-medium mb-4">Tax Settings</h3>
+            <div className="max-w-xs">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tax Rate (%)</label>
+              <input 
+                type="number" 
+                min="0"
+                max="100"
+                value={settings.invoice.taxRate}
+                onChange={(e) => handleTaxRateChange('invoice', parseInt(e.target.value) || 0)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              />
+              <p className="mt-1 text-sm text-gray-500">This rate will be applied to all invoices by default.</p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {activeDocType === 'delivery' && (
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-medium mb-4">Delivery Receipt Field Display Options</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SettingsCheckbox 
+                label="Delivery Number" 
+                checked={settings.delivery.fields.deliveryNumber}
+                onChange={(checked) => handleFieldChange('delivery', 'deliveryNumber', checked)}
+              />
+              <SettingsCheckbox 
+                label="Customer Name" 
+                checked={settings.delivery.fields.customerName}
+                onChange={(checked) => handleFieldChange('delivery', 'customerName', checked)}
+              />
+              <SettingsCheckbox 
+                label="Customer Address" 
+                checked={settings.delivery.fields.customerAddress}
+                onChange={(checked) => handleFieldChange('delivery', 'customerAddress', checked)}
+              />
+              <SettingsCheckbox 
+                label="Product Details" 
+                checked={settings.delivery.fields.productDetails}
+                onChange={(checked) => handleFieldChange('delivery', 'productDetails', checked)}
+              />
+              <SettingsCheckbox 
+                label="Delivery Date" 
+                checked={settings.delivery.fields.deliveryDate}
+                onChange={(checked) => handleFieldChange('delivery', 'deliveryDate', checked)}
+              />
+              <SettingsCheckbox 
+                label="Signature Requirement" 
+                checked={settings.delivery.fields.signature}
+                onChange={(checked) => handleFieldChange('delivery', 'signature', checked)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {activeDocType === 'warranty' && (
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-medium mb-4">Warranty Certificate Field Display Options</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SettingsCheckbox 
+                label="Warranty Number" 
+                checked={settings.warranty.fields.warrantyNumber}
+                onChange={(checked) => handleFieldChange('warranty', 'warrantyNumber', checked)}
+              />
+              <SettingsCheckbox 
+                label="Customer Name" 
+                checked={settings.warranty.fields.customerName}
+                onChange={(checked) => handleFieldChange('warranty', 'customerName', checked)}
+              />
+              <SettingsCheckbox 
+                label="Product Details" 
+                checked={settings.warranty.fields.productDetails}
+                onChange={(checked) => handleFieldChange('warranty', 'productDetails', checked)}
+              />
+              <SettingsCheckbox 
+                label="Warranty Period" 
+                checked={settings.warranty.fields.warrantyPeriod}
+                onChange={(checked) => handleFieldChange('warranty', 'warrantyPeriod', checked)}
+              />
+              <SettingsCheckbox 
+                label="Purchase Date" 
+                checked={settings.warranty.fields.purchaseDate}
+                onChange={(checked) => handleFieldChange('warranty', 'purchaseDate', checked)}
+              />
+              <SettingsCheckbox 
+                label="Terms & Conditions" 
+                checked={settings.warranty.fields.termsConditions}
+                onChange={(checked) => handleFieldChange('warranty', 'termsConditions', checked)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {activeDocType === 'quote' && (
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-medium mb-4">Quote Field Display Options</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SettingsCheckbox 
+                label="Quote Number" 
+                checked={settings.quote.fields.quoteNumber}
+                onChange={(checked) => handleFieldChange('quote', 'quoteNumber', checked)}
+              />
+              <SettingsCheckbox 
+                label="Customer Name" 
+                checked={settings.quote.fields.customerName}
+                onChange={(checked) => handleFieldChange('quote', 'customerName', checked)}
+              />
+              <SettingsCheckbox 
+                label="Customer Address" 
+                checked={settings.quote.fields.customerAddress}
+                onChange={(checked) => handleFieldChange('quote', 'customerAddress', checked)}
+              />
+              <SettingsCheckbox 
+                label="Product Details" 
+                checked={settings.quote.fields.productDetails}
+                onChange={(checked) => handleFieldChange('quote', 'productDetails', checked)}
+              />
+              <SettingsCheckbox 
+                label="Tax" 
+                checked={settings.quote.fields.tax}
+                onChange={(checked) => handleFieldChange('quote', 'tax', checked)}
+              />
+              <SettingsCheckbox 
+                label="Validity Period" 
+                checked={settings.quote.fields.validityPeriod}
+                onChange={(checked) => handleFieldChange('quote', 'validityPeriod', checked)}
+              />
+              <SettingsCheckbox 
+                label="Terms & Conditions" 
+                checked={settings.quote.fields.termsConditions}
+                onChange={(checked) => handleFieldChange('quote', 'termsConditions', checked)}
+              />
+            </div>
+          </div>
+          
+          <div className="border-t pt-4">
+            <h3 className="text-lg font-medium mb-4">Tax Settings</h3>
+            <div className="max-w-xs">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tax Rate (%)</label>
+              <input 
+                type="number" 
+                min="0"
+                max="100"
+                value={settings.quote.taxRate}
+                onChange={(e) => handleTaxRateChange('quote', parseInt(e.target.value) || 0)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              />
+              <p className="mt-1 text-sm text-gray-500">This rate will be applied to all quotes by default.</p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className="mt-8 pt-4 border-t">
+        <button 
+          onClick={handleSaveChanges}
+          className="px-6 py-2 text-white bg-primary rounded-md hover:bg-primary/90 transition-colors"
+        >
+          Save Changes
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SettingsCheckbox({ label, checked, onChange }) {
+  return (
+    <div className="flex items-center">
+      <input
+        type="checkbox"
+        id={`setting-${label.replace(/\s+/g, '-').toLowerCase()}`}
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+      />
+      <label 
+        htmlFor={`setting-${label.replace(/\s+/g, '-').toLowerCase()}`}
+        className="ml-2 text-sm font-medium text-gray-700"
+      >
+        {label}
+      </label>
     </div>
   );
 }
