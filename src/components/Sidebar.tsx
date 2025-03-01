@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -22,7 +21,7 @@ import {
   MessageSquare,
   X
 } from 'lucide-react';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SidebarProps {
   open: boolean;
@@ -32,7 +31,7 @@ interface SidebarProps {
 export default function Sidebar({ open, setOpen }: SidebarProps) {
   const location = useLocation();
   const [documentsOpen, setDocumentsOpen] = useState(false);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   // Auto open documents section if current path is in documents
   useEffect(() => {

@@ -3,12 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { Bell, ChevronDown, Menu, Search } from 'lucide-react';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   // Auto-close sidebar on mobile devices
   useEffect(() => {
