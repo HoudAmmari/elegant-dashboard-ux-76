@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -40,12 +41,14 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
     }
   }, [location.pathname]);
   
+  // Rearranged menuItems to place Documents menu between Purchases and Transfer
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Products', path: '/products', icon: Package },
     { name: 'Categories', path: '/categories', icon: Tags },
     { name: 'Orders', path: '/orders', icon: ClipboardList },
     { name: 'Purchases', path: '/purchases', icon: ShoppingCart },
+    // Documents section is now handled separately and positioned correctly in the navigation
     { name: 'Transfer', path: '/transfer', icon: Truck },
     { name: 'Reports', path: '/reports', icon: BarChart3 },
     { name: 'Suppliers', path: '/suppliers', icon: Users },
@@ -95,7 +98,8 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-none">
         <div className="space-y-1 stagger-animation">
-          {menuItems.map((item) => (
+          {/* First part of menu items (before Documents) */}
+          {menuItems.slice(0, 5).map((item) => (
             <Link
               key={item.name}
               to={item.path}
@@ -109,7 +113,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
             </Link>
           ))}
           
-          {/* Documents Section */}
+          {/* Documents Section - now placed between Purchases and Transfer */}
           <div>
             <button
               onClick={() => setDocumentsOpen(!documentsOpen)}
@@ -141,6 +145,21 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
               </div>
             )}
           </div>
+          
+          {/* Remaining menu items (after Documents) */}
+          {menuItems.slice(5).map((item) => (
+            <Link
+              key={item.name}
+              to={item.path}
+              className={`sidebar-link ${location.pathname === item.path ? 'active' : ''} ${!open && 'justify-center md:px-2'}`}
+              onClick={() => isMobile && setOpen(false)}
+            >
+              <item.icon size={20} />
+              <span className={`${open ? 'opacity-100' : 'opacity-0 md:hidden'} transition-opacity duration-200`}>
+                {item.name}
+              </span>
+            </Link>
+          ))}
         </div>
       </nav>
       
