@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { Bell, FileText, Globe, Lock, Moon, Sun, User } from 'lucide-react';
+import { Bell, FileText, Globe, Lock, Moon, Sun, User, Upload } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { toast } from 'sonner';
+import { Button } from '../components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../components/ui/dialog';
+import { Input } from '../components/ui/input';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -189,6 +192,8 @@ export default function Settings() {
 function DocumentsSettings() {
   const [activeDocType, setActiveDocType] = useState('invoice');
   const { settings, updateDocumentSettings } = useSettings();
+  const [pdfUploadOpen, setPdfUploadOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const handleFieldChange = (docType, field, value) => {
     updateDocumentSettings(docType, {
@@ -205,6 +210,31 @@ function DocumentsSettings() {
       ...settings[docType],
       taxRate: value
     });
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleFileUpload = () => {
+    if (!selectedFile) {
+      toast.error("Please select a file first");
+      return;
+    }
+
+    const fileUrl = URL.createObjectURL(selectedFile);
+    
+    updateDocumentSettings(activeDocType, {
+      ...settings[activeDocType],
+      templateUrl: fileUrl,
+      templateName: selectedFile.name
+    });
+
+    setPdfUploadOpen(false);
+    setSelectedFile(null);
+    toast.success(`Template for ${activeDocType} updated successfully!`);
   };
 
   const handleSaveChanges = () => {
@@ -337,7 +367,17 @@ function DocumentsSettings() {
       {activeDocType === 'warranty' && (
         <div className="space-y-6">
           <div>
-            <h3 className="text-lg font-medium mb-4">Warranty Certificate Field Display Options</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Warranty Certificate Field Display Options</h3>
+              <Button 
+                variant="outline" 
+                onClick={() => setPdfUploadOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <Upload size={16} />
+                Upload Template
+              </Button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <SettingsCheckbox 
                 label="Warranty Number" 
@@ -371,6 +411,21 @@ function DocumentsSettings() {
               />
             </div>
           </div>
+
+          {settings.warranty.templateUrl && (
+            <div className="p-4 bg-primary/5 rounded-md border border-primary/20">
+              <h4 className="font-medium mb-2">Current Template</h4>
+              <p className="text-sm mb-2">{settings.warranty.templateName}</p>
+              <a 
+                href={settings.warranty.templateUrl} 
+                target="_blank" 
+                rel="noreferrer"
+                className="text-sm text-primary hover:underline"
+              >
+                Preview Template
+              </a>
+            </div>
+          )}
         </div>
       )}
       
@@ -443,6 +498,42 @@ function DocumentsSettings() {
           Save Changes
         </button>
       </div>
+
+      <Dialog open={pdfUploadOpen} onOpenChange={setPdfUploadOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Upload PDF Template</DialogTitle>
+            <DialogDescription>
+              Upload a PDF template for {activeDocType === 'warranty' ? 'Attestation de Garantie' : activeDocType}. 
+              The system will use this template to automatically generate documents.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="pdfTemplate" className="text-right col-span-1">
+                PDF Template
+              </label>
+              <Input
+                id="pdfTemplate"
+                type="file"
+                accept=".pdf"
+                onChange={handleFileChange}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPdfUploadOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleFileUpload}>
+              Upload Template
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

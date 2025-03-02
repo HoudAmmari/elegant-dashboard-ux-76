@@ -10,6 +10,8 @@ type DocumentFieldSettings = {
 type DocumentSettings = {
   fields: DocumentFieldSettings;
   taxRate?: number;
+  templateUrl?: string;
+  templateName?: string;
 };
 
 type DocumentsSettings = {
@@ -63,7 +65,9 @@ const defaultSettings: DocumentsSettings = {
       warrantyPeriod: true,
       purchaseDate: true,
       termsConditions: true
-    }
+    },
+    templateUrl: '',
+    templateName: ''
   },
   quote: {
     fields: {
