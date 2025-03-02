@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Bell, FileText, Globe, Lock, Moon, Sun, User, Upload } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
@@ -248,10 +249,10 @@ function DocumentsSettings() {
       <div className="mb-6 border-b">
         <div className="flex space-x-4">
           {[
-            { id: 'invoice', name: 'Factures (Invoices)' },
-            { id: 'delivery', name: 'Bon de livraison' },
-            { id: 'warranty', name: 'Attestation de garantie' },
-            { id: 'quote', name: 'Devis (Quotes)' }
+            { id: 'invoice' as const, name: 'Factures (Invoices)' },
+            { id: 'delivery' as const, name: 'Bon de livraison' },
+            { id: 'warranty' as const, name: 'Attestation de garantie' },
+            { id: 'quote' as const, name: 'Devis (Quotes)' }
           ].map((docType) => (
             <button
               key={docType.id}
