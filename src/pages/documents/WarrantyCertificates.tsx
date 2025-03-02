@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Award, Download, Printer } from 'lucide-react';
+import { Award, Download, Printer, AlertTriangle } from 'lucide-react';
 import DocumentLayout from '../../components/documents/DocumentLayout';
 import { useSettings } from '../../contexts/SettingsContext';
 import { formatCurrency } from '../../utils/currency';
@@ -9,6 +9,72 @@ import { Button } from '../../components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../../components/ui/tooltip';
+
+// Import products data from the Products page
+// In a real application, this would come from an API or database
+const products = [
+  { 
+    id: 1,
+    image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
+    name: 'Grace Accent Chair',
+    category: 'Chairs',
+    price: 12799,
+    stock: 50,
+    orders: 34
+  },
+  { 
+    id: 2,
+    image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
+    name: 'Carven Lounge Chair',
+    category: 'Chairs',
+    price: 11799,
+    stock: 417,
+    orders: 28
+  },
+  { 
+    id: 3,
+    image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
+    name: 'Paine Chair',
+    category: 'Chairs',
+    price: 4799,
+    stock: 357,
+    orders: 20
+  },
+  { 
+    id: 4,
+    image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
+    name: 'Caria Patio Table',
+    category: 'Tables',
+    price: 5399,
+    stock: 490,
+    orders: 18
+  },
+  { 
+    id: 5,
+    image: '/lovable-uploads/f4ddfc1e-5234-4910-a77e-ccc4cb1bc157.png',
+    name: 'Wooden Dining Table',
+    category: 'Tables',
+    price: 8599,
+    stock: 125,
+    orders: 15
+  }
+];
+
+// Extract unique categories
+const categories = [...new Set(products.map(product => product.category))];
 
 export default function WarrantyCertificates() {
   const { settings } = useSettings();
@@ -29,6 +95,16 @@ export default function WarrantyCertificates() {
   const [generatedPdfUrl, setGeneratedPdfUrl] = useState<string | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   
+  // New state for tracking if price was manually changed
+  const [isPriceManuallyChanged, setIsPriceManuallyChanged] = useState(false);
+  const [originalPrice, setOriginalPrice] = useState(0);
+  
+  // Filter products by selected category
+  const filteredProducts = products.filter(
+    product => currentWarranty.productCategory === '' || 
+    product.category === currentWarranty.productCategory
+  );
+  
   // Update total when price or quantity changes
   useEffect(() => {
     setCurrentWarranty(prev => ({
@@ -42,6 +118,42 @@ export default function WarrantyCertificates() {
       ...prev,
       [field]: value
     }));
+    
+    // Reset price modified flag if we're changing product or category
+    if (field === 'productCategory' || field === 'productName') {
+      setIsPriceManuallyChanged(false);
+    }
+    
+    // If manually changing price
+    if (field === 'price' && !isPriceManuallyChanged && originalPrice !== 0 && originalPrice !== Number(value)) {
+      setIsPriceManuallyChanged(true);
+      toast.warning('You have manually changed the price from the default value.');
+    }
+  };
+  
+  // Handle product category selection
+  const handleCategoryChange = (value: string) => {
+    setCurrentWarranty(prev => ({
+      ...prev,
+      productCategory: value,
+      productName: '' // Reset product name when category changes
+    }));
+  };
+  
+  // Handle product selection
+  const handleProductChange = (value: string) => {
+    const selectedProduct = products.find(p => p.name === value);
+    
+    if (selectedProduct) {
+      const productPrice = selectedProduct.price;
+      setOriginalPrice(productPrice);
+      
+      setCurrentWarranty(prev => ({
+        ...prev,
+        productName: value,
+        price: productPrice,
+      }));
+    }
   };
   
   const generatePDF = async () => {
@@ -162,19 +274,40 @@ export default function WarrantyCertificates() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Product Category</label>
-                    <Input 
-                      value={currentWarranty.productCategory}
-                      onChange={(e) => handleInputChange('productCategory', e.target.value)}
-                      placeholder="Furniture"
-                    />
+                    <Select 
+                      value={currentWarranty.productCategory} 
+                      onValueChange={handleCategoryChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                    <Input 
-                      value={currentWarranty.productName}
-                      onChange={(e) => handleInputChange('productName', e.target.value)}
-                      placeholder="Leather Sofa"
-                    />
+                    <Select 
+                      value={currentWarranty.productName} 
+                      onValueChange={handleProductChange}
+                      disabled={!currentWarranty.productCategory}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={currentWarranty.productCategory ? "Select a product" : "Select a category first"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredProducts.map((product) => (
+                          <SelectItem key={product.id} value={product.name}>
+                            {product.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
@@ -186,13 +319,28 @@ export default function WarrantyCertificates() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Price
+                      {isPriceManuallyChanged && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <AlertTriangle size={16} className="ml-2 text-amber-500 inline" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Price has been manually modified from the original value of {formatCurrency(originalPrice)}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                    </label>
                     <Input 
                       type="number"
                       value={currentWarranty.price}
                       onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
                       min="0"
                       step="0.01"
+                      className={isPriceManuallyChanged ? "border-amber-300 focus:ring-amber-300" : ""}
                     />
                   </div>
                   <div>
