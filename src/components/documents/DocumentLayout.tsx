@@ -122,48 +122,50 @@ export default function DocumentLayout({
       </div>
 
       {/* Print-specific styles */}
-      <style jsx global>{`
-        @media print {
-          body {
-            background: white !important;
-            font-size: 12pt;
-            margin: 0;
-            padding: 0;
+      <style>
+        {`
+          @media print {
+            body {
+              background: white !important;
+              font-size: 12pt;
+              margin: 0;
+              padding: 0;
+            }
+            
+            .print\\:hidden {
+              display: none !important;
+            }
+            
+            .card-shadow {
+              box-shadow: none !important;
+              border: none !important;
+            }
+            
+            /* Ensure page breaks properly */
+            .page-break {
+              page-break-before: always;
+            }
+            
+            /* Adjust table styles for printing */
+            table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            
+            th, td {
+              padding: 8px;
+              text-align: left;
+              border: 1px solid #ddd;
+            }
+            
+            /* Ensure proper margins */
+            @page {
+              size: A4;
+              margin: 1.5cm;
+            }
           }
-          
-          .print\\:hidden {
-            display: none !important;
-          }
-          
-          .card-shadow {
-            box-shadow: none !important;
-            border: none !important;
-          }
-          
-          /* Ensure page breaks properly */
-          .page-break {
-            page-break-before: always;
-          }
-          
-          /* Adjust table styles for printing */
-          table {
-            width: 100%;
-            border-collapse: collapse;
-          }
-          
-          th, td {
-            padding: 8px;
-            text-align: left;
-            border: 1px solid #ddd;
-          }
-          
-          /* Ensure proper margins */
-          @page {
-            size: A4;
-            margin: 1.5cm;
-          }
-        }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 }
