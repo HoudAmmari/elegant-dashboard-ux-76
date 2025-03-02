@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Award, Download, Printer, AlertTriangle } from 'lucide-react';
 import DocumentLayout from '../../components/documents/DocumentLayout';
 import { useSettings } from '../../contexts/SettingsContext';
@@ -94,10 +94,15 @@ export default function WarrantyCertificates() {
   
   const [generatedPdfUrl, setGeneratedPdfUrl] = useState<string | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [formDisabled, setFormDisabled] = useState(false);
+  const [savedWarranty, setSavedWarranty] = useState<WarrantyData | null>(null);
   
   // New state for tracking if price was manually changed
   const [isPriceManuallyChanged, setIsPriceManuallyChanged] = useState(false);
   const [originalPrice, setOriginalPrice] = useState(0);
+  
+  // Reference to print iframe
+  const printFrameRef = useRef<HTMLIFrameElement | null>(null);
   
   // Filter products by selected category
   const filteredProducts = products.filter(
@@ -179,6 +184,10 @@ export default function WarrantyCertificates() {
       setGeneratedPdfUrl(pdfUrl);
       setPreviewDialogOpen(true);
       toast.success('Warranty certificate generated successfully!');
+      
+      // After generating, disable form and save the current warranty state
+      setFormDisabled(true);
+      setSavedWarranty({...currentWarranty});
     } catch (error) {
       console.error('Error generating PDF:', error);
       toast.error('Failed to generate warranty certificate. Please try again.');
@@ -194,6 +203,79 @@ export default function WarrantyCertificates() {
   const handlePrint = () => {
     if (generatedPdfUrl) {
       printPDF(generatedPdfUrl);
+      toast.success('Warranty sent to printer');
+    } else if (currentWarranty.customerName && currentWarranty.productName) {
+      // If we don't have a PDF yet, but we have enough info, generate one and then print
+      generatePDF().then(() => {
+        if (generatedPdfUrl) {
+          printPDF(generatedPdfUrl);
+          toast.success('Warranty sent to printer');
+        }
+      });
+    } else {
+      toast.error('Please fill out the required fields before printing');
+    }
+  };
+  
+  const handleSave = async () => {
+    // Validate required fields
+    if (!currentWarranty.customerName) {
+      toast.error('Customer name is required');
+      return;
+    }
+    
+    if (!currentWarranty.productName) {
+      toast.error('Product name is required');
+      return;
+    }
+    
+    try {
+      // In a real app, here you would save to a database
+      // For now, we'll just simulate saving
+      
+      // If we have already generated a PDF and the data changed, regenerate it
+      if (generatedPdfUrl && savedWarranty && 
+          JSON.stringify(savedWarranty) !== JSON.stringify(currentWarranty)) {
+        const pdfUrl = await fillWarrantyPDF(settings.warranty.templateUrl || '', currentWarranty);
+        setGeneratedPdfUrl(pdfUrl);
+        setSavedWarranty({...currentWarranty});
+        toast.success('Warranty certificate updated and saved successfully!');
+      } else if (!generatedPdfUrl) {
+        // If no PDF yet, generate one
+        const pdfUrl = await fillWarrantyPDF(settings.warranty.templateUrl || '', currentWarranty);
+        setGeneratedPdfUrl(pdfUrl);
+        setSavedWarranty({...currentWarranty});
+        toast.success('Warranty certificate saved successfully!');
+      } else {
+        // Nothing changed, just acknowledge save
+        toast.success('Warranty certificate saved successfully!');
+      }
+      
+      // After saving, disable form
+      setFormDisabled(true);
+    } catch (error) {
+      console.error('Error saving warranty:', error);
+      toast.error('Failed to save warranty certificate. Please try again.');
+    }
+  };
+  
+  const handleEdit = () => {
+    // Enable form for editing
+    setFormDisabled(false);
+    toast.info('You can now edit the warranty certificate');
+  };
+  
+  const directPrint = () => {
+    if (generatedPdfUrl) {
+      // If we already have a PDF, just print it
+      printPDF(generatedPdfUrl);
+    } else {
+      // Generate PDF first, then print
+      handleSave().then(() => {
+        if (generatedPdfUrl) {
+          printPDF(generatedPdfUrl);
+        }
+      });
     }
   };
   
@@ -202,6 +284,9 @@ export default function WarrantyCertificates() {
       title="Attestation de garantie (Warranty Certificates)" 
       subtitle="Create, edit and manage your warranty certificate documents"
       icon={<Award size={20} className="text-primary" />}
+      onSave={handleSave}
+      onEdit={handleEdit}
+      onPrint={directPrint}
     >
       <div className="bg-white rounded-lg card-shadow p-5">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -216,6 +301,7 @@ export default function WarrantyCertificates() {
                       value={currentWarranty.warrantyNumber}
                       onChange={(e) => handleInputChange('warrantyNumber', e.target.value)}
                       placeholder="WAR-12345"
+                      disabled={formDisabled}
                     />
                   </div>
                   <div>
@@ -224,6 +310,7 @@ export default function WarrantyCertificates() {
                       type="date"
                       value={currentWarranty.purchaseDate}
                       onChange={(e) => handleInputChange('purchaseDate', e.target.value)}
+                      disabled={formDisabled}
                     />
                   </div>
                   <div>
@@ -232,6 +319,7 @@ export default function WarrantyCertificates() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary"
                       value={currentWarranty.warrantyPeriod}
                       onChange={(e) => handleInputChange('warrantyPeriod', e.target.value)}
+                      disabled={formDisabled}
                     >
                       <option value="1 year">1 year</option>
                       <option value="2 years">2 years</option>
@@ -254,6 +342,7 @@ export default function WarrantyCertificates() {
                       value={currentWarranty.customerName}
                       onChange={(e) => handleInputChange('customerName', e.target.value)}
                       placeholder="John Doe"
+                      disabled={formDisabled}
                     />
                   </div>
                   <div>
@@ -262,6 +351,7 @@ export default function WarrantyCertificates() {
                       value={currentWarranty.customerCity}
                       onChange={(e) => handleInputChange('customerCity', e.target.value)}
                       placeholder="Paris"
+                      disabled={formDisabled}
                     />
                   </div>
                 </div>
@@ -277,6 +367,7 @@ export default function WarrantyCertificates() {
                     <Select 
                       value={currentWarranty.productCategory} 
                       onValueChange={handleCategoryChange}
+                      disabled={formDisabled}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
@@ -295,7 +386,7 @@ export default function WarrantyCertificates() {
                     <Select 
                       value={currentWarranty.productName} 
                       onValueChange={handleProductChange}
-                      disabled={!currentWarranty.productCategory}
+                      disabled={!currentWarranty.productCategory || formDisabled}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder={currentWarranty.productCategory ? "Select a product" : "Select a category first"} />
@@ -316,6 +407,7 @@ export default function WarrantyCertificates() {
                       value={currentWarranty.quantity}
                       onChange={(e) => handleInputChange('quantity', parseInt(e.target.value) || 1)}
                       min="1"
+                      disabled={formDisabled}
                     />
                   </div>
                   <div>
@@ -341,6 +433,7 @@ export default function WarrantyCertificates() {
                       min="0"
                       step="0.01"
                       className={isPriceManuallyChanged ? "border-amber-300 focus:ring-amber-300" : ""}
+                      disabled={formDisabled}
                     />
                   </div>
                   <div>
@@ -351,6 +444,7 @@ export default function WarrantyCertificates() {
                       onChange={(e) => handleInputChange('discount', parseFloat(e.target.value) || 0)}
                       min="0"
                       step="0.01"
+                      disabled={formDisabled}
                     />
                   </div>
                 </div>
@@ -391,10 +485,20 @@ export default function WarrantyCertificates() {
                 <Button
                   onClick={generatePDF}
                   className="w-full"
-                  disabled={!settings.warranty.templateUrl}
+                  disabled={!settings.warranty.templateUrl || formDisabled}
                 >
                   Generate Warranty Certificate
                 </Button>
+                
+                {formDisabled && (
+                  <Button
+                    onClick={handleEdit}
+                    variant="outline"
+                    className="w-full mt-2"
+                  >
+                    Edit Information
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -412,7 +516,12 @@ export default function WarrantyCertificates() {
           
           <div className="h-[60vh] overflow-auto border rounded-md">
             {generatedPdfUrl && (
-              <iframe src={generatedPdfUrl} className="w-full h-full" title="Warranty Certificate Preview"></iframe>
+              <iframe 
+                src={generatedPdfUrl} 
+                className="w-full h-full" 
+                title="Warranty Certificate Preview"
+                ref={printFrameRef}
+              ></iframe>
             )}
           </div>
           
