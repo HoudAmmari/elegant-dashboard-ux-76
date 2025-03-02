@@ -190,12 +190,12 @@ export default function Settings() {
 }
 
 function DocumentsSettings() {
-  const [activeDocType, setActiveDocType] = useState('invoice');
+  const [activeDocType, setActiveDocType] = useState<'invoice' | 'delivery' | 'warranty' | 'quote'>('invoice');
   const { settings, updateDocumentSettings } = useSettings();
   const [pdfUploadOpen, setPdfUploadOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
-  const handleFieldChange = (docType, field, value) => {
+  const handleFieldChange = (docType: 'invoice' | 'delivery' | 'warranty' | 'quote', field: string, value: boolean) => {
     updateDocumentSettings(docType, {
       ...settings[docType],
       fields: {
@@ -205,14 +205,14 @@ function DocumentsSettings() {
     });
   };
 
-  const handleTaxRateChange = (docType, value) => {
+  const handleTaxRateChange = (docType: 'invoice' | 'delivery' | 'warranty' | 'quote', value: number) => {
     updateDocumentSettings(docType, {
       ...settings[docType],
       taxRate: value
     });
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
     }
@@ -226,10 +226,8 @@ function DocumentsSettings() {
 
     const fileUrl = URL.createObjectURL(selectedFile);
     
-    const docType = activeDocType as keyof DocumentsSettings;
-    
-    updateDocumentSettings(docType, {
-      ...settings[docType],
+    updateDocumentSettings(activeDocType, {
+      ...settings[activeDocType],
       templateUrl: fileUrl,
       templateName: selectedFile.name
     });
@@ -540,7 +538,7 @@ function DocumentsSettings() {
   );
 }
 
-function SettingsCheckbox({ label, checked, onChange }) {
+function SettingsCheckbox({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) {
   return (
     <div className="flex items-center">
       <input
