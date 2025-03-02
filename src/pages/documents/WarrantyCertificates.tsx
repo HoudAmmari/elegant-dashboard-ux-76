@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { Award, Download, Printer, AlertTriangle } from 'lucide-react';
 import DocumentLayout from '../../components/documents/DocumentLayout';
@@ -160,13 +161,12 @@ export default function WarrantyCertificates() {
       return;
     }
     
-    if (!settings.warranty.templateUrl) {
-      toast.error('No warranty template has been uploaded. Please upload a template in Settings.');
-      return;
-    }
-    
     try {
-      const pdfUrl = await fillWarrantyPDF(settings.warranty.templateUrl, currentWarranty);
+      // We don't need the template URL anymore as we're generating the PDF from scratch
+      const dummyTemplateUrl = ""; // Using an empty string instead of checking settings
+      
+      toast.loading('Generating warranty certificate...');
+      const pdfUrl = await fillWarrantyPDF(dummyTemplateUrl, currentWarranty);
       setGeneratedPdfUrl(pdfUrl);
       setPreviewDialogOpen(true);
       toast.success('Warranty certificate generated successfully!');
@@ -182,6 +182,7 @@ export default function WarrantyCertificates() {
   const handleDownload = () => {
     if (generatedPdfUrl) {
       downloadPDF(generatedPdfUrl, `warranty-${currentWarranty.warrantyNumber}.pdf`);
+      toast.success('Warranty certificate downloaded successfully');
     }
   };
   
@@ -213,14 +214,19 @@ export default function WarrantyCertificates() {
     }
     
     try {
+      // We don't need the template URL anymore as we're generating the PDF from scratch
+      const dummyTemplateUrl = ""; // Using an empty string instead of checking settings
+      
       if (generatedPdfUrl && savedWarranty && 
           JSON.stringify(savedWarranty) !== JSON.stringify(currentWarranty)) {
-        const pdfUrl = await fillWarrantyPDF(settings.warranty.templateUrl || '', currentWarranty);
+        toast.loading('Updating warranty certificate...');
+        const pdfUrl = await fillWarrantyPDF(dummyTemplateUrl, currentWarranty);
         setGeneratedPdfUrl(pdfUrl);
         setSavedWarranty({...currentWarranty});
         toast.success('Warranty certificate updated and saved successfully!');
       } else if (!generatedPdfUrl) {
-        const pdfUrl = await fillWarrantyPDF(settings.warranty.templateUrl || '', currentWarranty);
+        toast.loading('Saving warranty certificate...');
+        const pdfUrl = await fillWarrantyPDF(dummyTemplateUrl, currentWarranty);
         setGeneratedPdfUrl(pdfUrl);
         setSavedWarranty({...currentWarranty});
         toast.success('Warranty certificate saved successfully!');
@@ -243,10 +249,13 @@ export default function WarrantyCertificates() {
   const directPrint = () => {
     if (generatedPdfUrl) {
       printPDF(generatedPdfUrl);
+      toast.success('Printing warranty certificate');
     } else {
+      toast.loading('Preparing warranty certificate for printing...');
       handleSave().then(() => {
         if (generatedPdfUrl) {
           printPDF(generatedPdfUrl);
+          toast.success('Printing warranty certificate');
         }
       });
     }
