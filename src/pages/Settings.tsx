@@ -226,8 +226,10 @@ function DocumentsSettings() {
 
     const fileUrl = URL.createObjectURL(selectedFile);
     
-    updateDocumentSettings(activeDocType, {
-      ...settings[activeDocType],
+    const docType = activeDocType as keyof DocumentsSettings;
+    
+    updateDocumentSettings(docType, {
+      ...settings[docType],
       templateUrl: fileUrl,
       templateName: selectedFile.name
     });
