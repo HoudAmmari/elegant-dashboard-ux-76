@@ -26,7 +26,7 @@ export default function DocumentLayout({
 }: DocumentLayoutProps) {
   return (
     <div className="space-y-5 animate-fadeIn">
-      <div className="flex justify-between items-center flex-wrap gap-4">
+      <div className="flex justify-between items-center flex-wrap gap-4 print:hidden">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             {icon}
@@ -45,9 +45,12 @@ export default function DocumentLayout({
         </div>
       </div>
       
-      {children}
+      {/* Main content wrapper with print styles */}
+      <div className="print:m-0 print:p-0 print:shadow-none">
+        {children}
+      </div>
       
-      <div className="fixed bottom-6 right-6 flex gap-3">
+      <div className="fixed bottom-6 right-6 flex gap-3 print:hidden">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -117,6 +120,50 @@ export default function DocumentLayout({
           </Tooltip>
         </TooltipProvider>
       </div>
+
+      {/* Print-specific styles */}
+      <style jsx global>{`
+        @media print {
+          body {
+            background: white !important;
+            font-size: 12pt;
+            margin: 0;
+            padding: 0;
+          }
+          
+          .print\\:hidden {
+            display: none !important;
+          }
+          
+          .card-shadow {
+            box-shadow: none !important;
+            border: none !important;
+          }
+          
+          /* Ensure page breaks properly */
+          .page-break {
+            page-break-before: always;
+          }
+          
+          /* Adjust table styles for printing */
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          
+          th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+          }
+          
+          /* Ensure proper margins */
+          @page {
+            size: A4;
+            margin: 1.5cm;
+          }
+        }
+      `}</style>
     </div>
   );
 }

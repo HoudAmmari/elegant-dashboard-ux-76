@@ -31,114 +31,60 @@ export async function fillWarrantyPDF(templateUrl: string, data: WarrantyData): 
     const page = pdfDoc.getPages()[0];
     
     // Get a standard font
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
     
-    // Define text options
-    const textSize = 12;
+    // Define text options for headings
+    const headingTextSize = 12;
+    const textSize = 11;
     const textColor = rgb(0, 0, 0);
     
     // Define positions for field values (these would need to be adjusted based on the actual template)
+    // Using more precise positioning for better alignment
     const positions = {
-      warrantyNumber: { x: 400, y: 750 },
-      customerName: { x: 150, y: 650 },
-      customerCity: { x: 150, y: 630 },
-      productCategory: { x: 150, y: 550 },
-      productName: { x: 150, y: 530 },
-      quantity: { x: 400, y: 530 },
-      price: { x: 450, y: 530 },
-      total: { x: 500, y: 500 },
-      discount: { x: 500, y: 480 },
-      warrantyPeriod: { x: 150, y: 400 },
-      purchaseDate: { x: 400, y: 400 },
+      // Header section
+      warrantyNumber: { x: 450, y: 750, font: font, size: headingTextSize },
+      
+      // Customer Information section
+      customerName: { x: 150, y: 650, font: regularFont, size: textSize },
+      customerCity: { x: 150, y: 630, font: regularFont, size: textSize },
+      
+      // Product Information section - Left aligned
+      productCategory: { x: 150, y: 550, font: regularFont, size: textSize },
+      productName: { x: 150, y: 530, font: regularFont, size: textSize },
+      
+      // Product Information section - Right aligned numeric values
+      quantity: { x: 420, y: 530, font: regularFont, size: textSize },
+      price: { x: 480, y: 530, font: regularFont, size: textSize },
+      
+      // Totals section - Right aligned
+      total: { x: 480, y: 500, font: font, size: textSize },
+      discount: { x: 480, y: 480, font: regularFont, size: textSize },
+      
+      // Warranty details
+      warrantyPeriod: { x: 150, y: 400, font: regularFont, size: textSize },
+      purchaseDate: { x: 400, y: 400, font: regularFont, size: textSize },
     };
     
-    // Fill in fields
-    page.drawText(data.warrantyNumber, {
-      x: positions.warrantyNumber.x,
-      y: positions.warrantyNumber.y,
-      size: textSize,
-      font,
-      color: textColor,
-    });
-    
-    page.drawText(data.customerName, {
-      x: positions.customerName.x,
-      y: positions.customerName.y,
-      size: textSize,
-      font,
-      color: textColor,
-    });
-    
-    page.drawText(data.customerCity, {
-      x: positions.customerCity.x,
-      y: positions.customerCity.y,
-      size: textSize,
-      font,
-      color: textColor,
-    });
-    
-    page.drawText(data.productCategory, {
-      x: positions.productCategory.x,
-      y: positions.productCategory.y,
-      size: textSize,
-      font,
-      color: textColor,
-    });
-    
-    page.drawText(data.productName, {
-      x: positions.productName.x,
-      y: positions.productName.y,
-      size: textSize,
-      font,
-      color: textColor,
-    });
-    
-    page.drawText(data.quantity.toString(), {
-      x: positions.quantity.x,
-      y: positions.quantity.y,
-      size: textSize,
-      font,
-      color: textColor,
-    });
-    
-    page.drawText(data.price.toFixed(2), {
-      x: positions.price.x,
-      y: positions.price.y,
-      size: textSize,
-      font,
-      color: textColor,
-    });
-    
-    page.drawText(data.total.toFixed(2), {
-      x: positions.total.x,
-      y: positions.total.y,
-      size: textSize,
-      font,
-      color: textColor,
-    });
-    
-    page.drawText(data.discount.toFixed(2), {
-      x: positions.discount.x,
-      y: positions.discount.y,
-      size: textSize,
-      font,
-      color: textColor,
-    });
-    
-    page.drawText(data.warrantyPeriod, {
-      x: positions.warrantyPeriod.x,
-      y: positions.warrantyPeriod.y,
-      size: textSize,
-      font,
-      color: textColor,
-    });
-    
-    page.drawText(data.purchaseDate, {
-      x: positions.purchaseDate.x,
-      y: positions.purchaseDate.y,
-      size: textSize,
-      font,
-      color: textColor,
+    // Fill in fields with proper formatting
+    Object.entries(positions).forEach(([key, position]) => {
+      const value = data[key as keyof WarrantyData];
+      
+      // Format numeric values with proper decimal places and alignment
+      let displayValue = String(value);
+      
+      if (key === 'price' || key === 'total' || key === 'discount') {
+        // Format currency values
+        displayValue = typeof value === 'number' ? value.toFixed(2) : String(value);
+      }
+      
+      page.drawText(displayValue, {
+        x: position.x,
+        y: position.y,
+        size: position.size,
+        font: position.font,
+        color: textColor,
+      });
     });
     
     // Save the PDF
@@ -180,4 +126,24 @@ export function downloadPDF(pdfUrl: string, filename: string): void {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+/**
+ * Direct print of warranty document from DOM
+ * This is used when printing the warranty directly from the page
+ */
+export function printWarrantyDocument(): void {
+  // Save the current body classes
+  const originalBodyClasses = document.body.className;
+  
+  // Add print-specific class to body
+  document.body.classList.add('printing-warranty');
+  
+  // Print
+  window.print();
+  
+  // Restore original body classes after print dialog closes
+  setTimeout(() => {
+    document.body.className = originalBodyClasses;
+  }, 1000);
 }

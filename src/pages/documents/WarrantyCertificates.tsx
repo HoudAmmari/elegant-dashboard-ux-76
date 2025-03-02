@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Award, Download, Printer, AlertTriangle } from 'lucide-react';
 import DocumentLayout from '../../components/documents/DocumentLayout';
@@ -23,8 +22,6 @@ import {
   TooltipTrigger,
 } from '../../components/ui/tooltip';
 
-// Import products data from the Products page
-// In a real application, this would come from an API or database
 const products = [
   { 
     id: 1,
@@ -73,7 +70,6 @@ const products = [
   }
 ];
 
-// Extract unique categories
 const categories = [...new Set(products.map(product => product.category))];
 
 export default function WarrantyCertificates() {
@@ -97,20 +93,16 @@ export default function WarrantyCertificates() {
   const [formDisabled, setFormDisabled] = useState(false);
   const [savedWarranty, setSavedWarranty] = useState<WarrantyData | null>(null);
   
-  // New state for tracking if price was manually changed
   const [isPriceManuallyChanged, setIsPriceManuallyChanged] = useState(false);
   const [originalPrice, setOriginalPrice] = useState(0);
   
-  // Reference to print iframe
   const printFrameRef = useRef<HTMLIFrameElement | null>(null);
   
-  // Filter products by selected category
   const filteredProducts = products.filter(
     product => currentWarranty.productCategory === '' || 
     product.category === currentWarranty.productCategory
   );
   
-  // Update total when price or quantity changes
   useEffect(() => {
     setCurrentWarranty(prev => ({
       ...prev,
@@ -124,28 +116,24 @@ export default function WarrantyCertificates() {
       [field]: value
     }));
     
-    // Reset price modified flag if we're changing product or category
     if (field === 'productCategory' || field === 'productName') {
       setIsPriceManuallyChanged(false);
     }
     
-    // If manually changing price
     if (field === 'price' && !isPriceManuallyChanged && originalPrice !== 0 && originalPrice !== Number(value)) {
       setIsPriceManuallyChanged(true);
       toast.warning('You have manually changed the price from the default value.');
     }
   };
   
-  // Handle product category selection
   const handleCategoryChange = (value: string) => {
     setCurrentWarranty(prev => ({
       ...prev,
       productCategory: value,
-      productName: '' // Reset product name when category changes
+      productName: ''
     }));
   };
   
-  // Handle product selection
   const handleProductChange = (value: string) => {
     const selectedProduct = products.find(p => p.name === value);
     
@@ -162,7 +150,6 @@ export default function WarrantyCertificates() {
   };
   
   const generatePDF = async () => {
-    // Validate required fields
     if (!currentWarranty.customerName) {
       toast.error('Customer name is required');
       return;
@@ -179,13 +166,11 @@ export default function WarrantyCertificates() {
     }
     
     try {
-      // Generate PDF
       const pdfUrl = await fillWarrantyPDF(settings.warranty.templateUrl, currentWarranty);
       setGeneratedPdfUrl(pdfUrl);
       setPreviewDialogOpen(true);
       toast.success('Warranty certificate generated successfully!');
       
-      // After generating, disable form and save the current warranty state
       setFormDisabled(true);
       setSavedWarranty({...currentWarranty});
     } catch (error) {
@@ -205,7 +190,6 @@ export default function WarrantyCertificates() {
       printPDF(generatedPdfUrl);
       toast.success('Warranty sent to printer');
     } else if (currentWarranty.customerName && currentWarranty.productName) {
-      // If we don't have a PDF yet, but we have enough info, generate one and then print
       generatePDF().then(() => {
         if (generatedPdfUrl) {
           printPDF(generatedPdfUrl);
@@ -218,7 +202,6 @@ export default function WarrantyCertificates() {
   };
   
   const handleSave = async () => {
-    // Validate required fields
     if (!currentWarranty.customerName) {
       toast.error('Customer name is required');
       return;
@@ -230,10 +213,6 @@ export default function WarrantyCertificates() {
     }
     
     try {
-      // In a real app, here you would save to a database
-      // For now, we'll just simulate saving
-      
-      // If we have already generated a PDF and the data changed, regenerate it
       if (generatedPdfUrl && savedWarranty && 
           JSON.stringify(savedWarranty) !== JSON.stringify(currentWarranty)) {
         const pdfUrl = await fillWarrantyPDF(settings.warranty.templateUrl || '', currentWarranty);
@@ -241,17 +220,14 @@ export default function WarrantyCertificates() {
         setSavedWarranty({...currentWarranty});
         toast.success('Warranty certificate updated and saved successfully!');
       } else if (!generatedPdfUrl) {
-        // If no PDF yet, generate one
         const pdfUrl = await fillWarrantyPDF(settings.warranty.templateUrl || '', currentWarranty);
         setGeneratedPdfUrl(pdfUrl);
         setSavedWarranty({...currentWarranty});
         toast.success('Warranty certificate saved successfully!');
       } else {
-        // Nothing changed, just acknowledge save
         toast.success('Warranty certificate saved successfully!');
       }
       
-      // After saving, disable form
       setFormDisabled(true);
     } catch (error) {
       console.error('Error saving warranty:', error);
@@ -260,17 +236,14 @@ export default function WarrantyCertificates() {
   };
   
   const handleEdit = () => {
-    // Enable form for editing
     setFormDisabled(false);
     toast.info('You can now edit the warranty certificate');
   };
   
   const directPrint = () => {
     if (generatedPdfUrl) {
-      // If we already have a PDF, just print it
       printPDF(generatedPdfUrl);
     } else {
-      // Generate PDF first, then print
       handleSave().then(() => {
         if (generatedPdfUrl) {
           printPDF(generatedPdfUrl);
@@ -288,35 +261,47 @@ export default function WarrantyCertificates() {
       onEdit={handleEdit}
       onPrint={directPrint}
     >
-      <div className="bg-white rounded-lg card-shadow p-5">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="bg-white rounded-lg card-shadow p-5 print:p-0 print:border-0 print:shadow-none">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 print:grid-cols-1 print:gap-2">
           <div className="lg:col-span-2 space-y-6">
+            <div className="print:text-center print:border-b print:pb-4 print:mb-6">
+              <h1 className="text-2xl font-bold print:text-3xl">Attestation de Garantie</h1>
+              <p className="text-sm text-gray-500 print:text-base">Warranty Certificate</p>
+              {currentWarranty.warrantyNumber && (
+                <p className="print:text-right print:font-bold print:text-lg">
+                  No: {currentWarranty.warrantyNumber}
+                </p>
+              )}
+            </div>
+
             {settings.warranty.fields.warrantyNumber && (
-              <div className="border-b pb-4">
-                <h2 className="text-lg font-semibold mb-4">Warranty Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Warranty Number</label>
+              <div className="border-b pb-4 print:pb-2 print:mb-4">
+                <h2 className="text-lg font-semibold mb-4 print:text-xl">Warranty Information</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-2">
+                  <div className="print:mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 print:font-bold">Warranty Number</label>
                     <Input 
                       value={currentWarranty.warrantyNumber}
                       onChange={(e) => handleInputChange('warrantyNumber', e.target.value)}
                       placeholder="WAR-12345"
                       disabled={formDisabled}
+                      className="print:border-0 print:p-0 print:text-black print:bg-transparent"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+                  <div className="print:mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 print:font-bold">Purchase Date</label>
                     <Input 
                       type="date"
                       value={currentWarranty.purchaseDate}
                       onChange={(e) => handleInputChange('purchaseDate', e.target.value)}
                       disabled={formDisabled}
+                      className="print:border-0 print:p-0 print:text-black print:bg-transparent"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Warranty Period</label>
+                  <div className="print:mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 print:font-bold">Warranty Period</label>
                     <select 
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary print:border-0 print:p-0 print:text-black print:bg-transparent"
                       value={currentWarranty.warrantyPeriod}
                       onChange={(e) => handleInputChange('warrantyPeriod', e.target.value)}
                       disabled={formDisabled}
@@ -333,25 +318,27 @@ export default function WarrantyCertificates() {
             )}
             
             {settings.warranty.fields.customerName && (
-              <div className="border-b pb-4">
-                <h2 className="text-lg font-semibold mb-4">Customer Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+              <div className="border-b pb-4 print:pb-2 print:mb-4">
+                <h2 className="text-lg font-semibold mb-4 print:text-xl">Customer Information</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-2">
+                  <div className="print:mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 print:font-bold">Customer Name</label>
                     <Input 
                       value={currentWarranty.customerName}
                       onChange={(e) => handleInputChange('customerName', e.target.value)}
                       placeholder="John Doe"
                       disabled={formDisabled}
+                      className="print:border-0 print:p-0 print:text-black print:bg-transparent"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                  <div className="print:mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 print:font-bold">City</label>
                     <Input 
                       value={currentWarranty.customerCity}
                       onChange={(e) => handleInputChange('customerCity', e.target.value)}
                       placeholder="Paris"
                       disabled={formDisabled}
+                      className="print:border-0 print:p-0 print:text-black print:bg-transparent"
                     />
                   </div>
                 </div>
@@ -359,48 +346,78 @@ export default function WarrantyCertificates() {
             )}
             
             {settings.warranty.fields.productDetails && (
-              <div>
-                <h2 className="text-lg font-semibold mb-4">Product Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Product Category</label>
-                    <Select 
-                      value={currentWarranty.productCategory} 
-                      onValueChange={handleCategoryChange}
-                      disabled={formDisabled}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              <div className="print:pb-2 print:mb-4">
+                <h2 className="text-lg font-semibold mb-4 print:text-xl">Product Information</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-2">
+                  <div className="print:mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 print:font-bold">Product Category</label>
+                    <div className="print:hidden">
+                      <Select 
+                        value={currentWarranty.productCategory} 
+                        onValueChange={handleCategoryChange}
+                        disabled={formDisabled}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="hidden print:block print:text-black">{currentWarranty.productCategory}</div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                    <Select 
-                      value={currentWarranty.productName} 
-                      onValueChange={handleProductChange}
-                      disabled={!currentWarranty.productCategory || formDisabled}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={currentWarranty.productCategory ? "Select a product" : "Select a category first"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filteredProducts.map((product) => (
-                          <SelectItem key={product.id} value={product.name}>
-                            {product.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="print:mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 print:font-bold">Product Name</label>
+                    <div className="print:hidden">
+                      <Select 
+                        value={currentWarranty.productName} 
+                        onValueChange={handleProductChange}
+                        disabled={!currentWarranty.productCategory || formDisabled}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={currentWarranty.productCategory ? "Select a product" : "Select a category first"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {filteredProducts.map((product) => (
+                            <SelectItem key={product.id} value={product.name}>
+                              {product.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="hidden print:block print:text-black">{currentWarranty.productName}</div>
                   </div>
-                  <div>
+                  
+                  <div className="hidden print:block print:col-span-2 print:mt-4 print:mb-8">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="border border-gray-300 p-2 text-left">Description</th>
+                          <th className="border border-gray-300 p-2 text-right">Quantity</th>
+                          <th className="border border-gray-300 p-2 text-right">Unit Price</th>
+                          <th className="border border-gray-300 p-2 text-right">Discount</th>
+                          <th className="border border-gray-300 p-2 text-right">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="border border-gray-300 p-2">{currentWarranty.productName}</td>
+                          <td className="border border-gray-300 p-2 text-right">{currentWarranty.quantity}</td>
+                          <td className="border border-gray-300 p-2 text-right">{formatCurrency(currentWarranty.price)}</td>
+                          <td className="border border-gray-300 p-2 text-right">{formatCurrency(currentWarranty.discount)}</td>
+                          <td className="border border-gray-300 p-2 text-right font-bold">{formatCurrency(currentWarranty.total)}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  <div className="print:hidden">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
                     <Input 
                       type="number"
@@ -410,7 +427,7 @@ export default function WarrantyCertificates() {
                       disabled={formDisabled}
                     />
                   </div>
-                  <div>
+                  <div className="print:hidden">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Price
                       {isPriceManuallyChanged && (
@@ -436,7 +453,7 @@ export default function WarrantyCertificates() {
                       disabled={formDisabled}
                     />
                   </div>
-                  <div>
+                  <div className="print:hidden">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Discount</label>
                     <Input 
                       type="number"
@@ -450,9 +467,29 @@ export default function WarrantyCertificates() {
                 </div>
               </div>
             )}
+            
+            <div className="hidden print:block print:mt-12 print:border-t print:pt-4">
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <p className="font-bold mb-1">Terms & Conditions:</p>
+                  <ol className="text-sm pl-4">
+                    <li>This warranty covers manufacturing defects only.</li>
+                    <li>Warranty is valid only with proof of purchase.</li>
+                    <li>Damage due to misuse or normal wear and tear is not covered.</li>
+                    <li>For service, contact our customer support at support@maestrofurniture.com</li>
+                  </ol>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold mb-6">Authorized Signature:</p>
+                  <div className="border-t border-black pt-1 inline-block">
+                    <p>For Maestro Furniture</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           
-          <div>
+          <div className="print:hidden">
             <div className="bg-gray-50 rounded-lg p-5 sticky top-20">
               <h2 className="text-lg font-semibold mb-4">Summary</h2>
               
